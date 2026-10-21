@@ -131,6 +131,19 @@ input{font:inherit;color:var(--t1)}
 .stat3 b{display:block;font-size:20px;font-weight:800}
 .stat3 small{font-size:11px;color:var(--t2)}
 
+/* photos */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.ph{position:relative;aspect-ratio:3/4;border-radius:14px;overflow:hidden;border:0;padding:0;background:var(--track)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph .tag{position:absolute;left:6px;bottom:6px;background:rgba(255,255,255,.9)}
+.ph.picked{box-shadow:inset 0 0 0 3px var(--glow)}
+label.btn{display:flex;align-items:center;justify-content:center;cursor:pointer}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.cmp img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:16px;display:block}
+.cmp .tt{font-size:14px;margin-top:8px}
+.photo-full{width:100%;border-radius:22px;margin-top:16px;display:block}
+
 /* tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 6px calc(env(safe-area-inset-bottom) + 6px)}
 .tabs button{flex:1;max-width:96px;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:var(--t3);padding:4px 0}
@@ -298,7 +311,57 @@ let S = load() || { start: today(), days: {}, weights: [], measures: [], last: n
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
 function day(k) { return S.days[k] || (S.days[k] = { h: {}, steps: 0, water: 0, food: [], sets: {}, workout: null, session: null, done: false }); }
 
-const ui = { tab: 'today', sel: today(), exp: null, trainSeg: 'sessions', eatGroup: 'Breakfast', overlay: null };
+const ui = { tab: 'today', sel: today(), exp: null, trainSeg: 'sessions', eatGroup: 'Breakfast', overlay: null, pose: 'Front', cmp: null };
+
+/* ---------- photos (IndexedDB, too big for localStorage) ---------- */
+const PH = (() => {
+  let dbp;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    const r = indexedDB.open('sculpt-photos', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('photos', { keyPath: 'id' });
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }));
+  const tx = async (mode, fn) => {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const t = db.transaction('photos', mode), req = fn(t.objectStore('photos'));
+      t.oncomplete = () => res(req.result); t.onerror = () => rej(t.error);
+    });
+  };
+  return { all: () => tx('readonly', s => s.getAll()), put: p => tx('readwrite', s => s.put(p)), del: id => tx('readwrite', s => s.delete(id)), clear: () => tx('readwrite', s => s.clear()) };
+})();
+let PHOTOS = [], URLS = {};
+function shrink(file) {
+  return new Promise((res, rej) => {
+    const u = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, 1400 / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(u);
+      c.toBlob(b => b ? res(b) : rej(new Error('encode')), 'image/jpeg', 0.85);
+    };
+    img.onerror = () => { URL.revokeObjectURL(u); rej(new Error('decode')); };
+    img.src = u;
+  });
+}
+async function addPhotos(files) {
+  if (!files.length) return;
+  toast('Saving…');
+  try { navigator.storage?.persist?.(); } catch {}
+  let ok = 0;
+  for (const f of files) {
+    try {
+      const blob = await shrink(f);
+      const p = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), d: today(), pose: ui.pose, blob };
+      await PH.put(p);
+      URLS[p.id] = URL.createObjectURL(blob); PHOTOS.push(p); ok++;
+    } catch { toast('Couldn\'t save that photo. Try a JPG or PNG.'); }
+  }
+  if (ok) toast(ok > 1 ? `${ok} photos saved` : 'Photo saved');
+  render();
+}
 
 /* ---------- derived ---------- */
 const sessionById = id => id === 'R' ? REST : SESSIONS.find(s => s.id === id);
@@ -535,12 +598,46 @@ function renderProgress() {
     <div class="card pad">${W.length >= 2 ? `<div class="tt" style="font-size:14px">Body weight (lb)</div><div class="chart" id="chart"></div>
       <div class="legend"><span><i style="width:8px;height:8px;border-radius:50%;background:var(--dot-day)"></i>Daily</span><span><i style="width:16px;height:2px;background:var(--line-avg)"></i>7-day avg</span><span><i style="width:16px;border-top:2px dashed var(--t3)"></i>Goal</span></div>` : '<div class="muted">Log at least two weigh-ins to see your trend.</div>'}</div>
     ${W.length ? `<div class="label">History</div><div class="card">${[...W].reverse().slice(0, 14).map(x => `<div class="list-row"><div class="tx"><div style="font-size:14px;font-weight:600">${x.lb.toFixed(1)} lb</div><div class="st">${fmtDate(x.d)} · avg ${weekAvg(x.d).toFixed(1)}</div></div><button class="x" data-act="rm-weight" data-k="${x.d}" aria-label="remove">${I(ICON.x, 14, 2.2)}</button></div>`).join('')}</div>` : ''}
+    ${renderPhotos()}
     <div class="label">Measurements · every 2 weeks</div>
     <div class="card pad"><div class="row"><input class="field" id="m-w" inputmode="decimal" placeholder="Waist"><input class="field" id="m-h" inputmode="decimal" placeholder="Hips"><input class="field" id="m-t" inputmode="decimal" placeholder="Thigh"></div>
       <button class="btn small" data-act="add-measure">Save (inches)</button>
       <div class="muted" style="margin-top:8px">Waist at the navel, hips at the widest part of the glutes, thigh 6" above the knee. Hips steady or up + waist & thigh down = it's working.</div></div>
     ${M.length ? `<div class="card" style="margin-top:12px">${M.map(x => `<div class="list-row"><div class="tx"><div style="font-size:14px;font-weight:600">W ${x.w || '–'} · H ${x.h || '–'} · T ${x.t || '–'}</div><div class="st">${fmtDate(x.d)}</div></div><button class="x" data-act="rm-measure" data-k="${x.d}" aria-label="remove">${I(ICON.x, 14, 2.2)}</button></div>`).join('')}</div>` : ''}
     ${startLb ? `<p class="muted" style="margin:12px 4px">Started at ${startLb.toFixed(1)} lb on ${fmtDate(W[0].d)}.</p>` : ''}`;
+}
+
+function renderPhotos() {
+  const pick = ui.cmp, byDay = {};
+  PHOTOS.forEach(p => (byDay[p.d] ||= []).push(p));
+  const days = Object.keys(byDay).sort().reverse();
+  return `<div class="label">Progress photos</div>
+    <div class="card pad">
+      <div class="row">${['Front', 'Side', 'Back'].map(x => `<button class="chip ${ui.pose === x ? 'on' : ''}" data-act="pose" data-id="${x}">${x}</button>`).join('')}</div>
+      <label class="btn small" for="ph-in">Add ${ui.pose.toLowerCase()} photo</label>
+      <input id="ph-in" class="vh" type="file" accept="image/*" multiple>
+      <div class="muted" style="margin-top:8px">Every 2 weeks: same spot, same light, morning, same outfit. Photos stay private on this phone.</div>
+    </div>
+    ${days.length ? `<div class="row" style="justify-content:space-between;margin:12px 4px 0"><span class="muted">${pick ? `Pick 2 photos to compare (${pick.length}/2)` : `${PHOTOS.length} photo${PHOTOS.length > 1 ? 's' : ''}`}</span>${PHOTOS.length > 1 ? `<button class="chip ${pick ? 'on' : ''}" data-act="cmp">${pick ? 'Cancel' : 'Compare'}</button>` : ''}</div>
+    <div class="stack" style="margin-top:10px">${days.map(d => `<div><div class="muted" style="margin:0 4px 6px;font-weight:600">${fmtDate(d)}</div><div class="pgrid">${byDay[d].map(p => `<button class="ph ${pick?.includes(p.id) ? 'picked' : ''}" data-act="photo" data-id="${p.id}"><img src="${URLS[p.id]}" alt="${p.pose} photo, ${fmtDate(d)}"><span class="tag">${p.pose}</span></button>`).join('')}</div></div>`).join('')}</div>` : ''}`;
+}
+const avgNote = k => { const a = weekAvg(k); return a != null ? `7-day avg ${a.toFixed(1)} lb` : ''; };
+function renderPhotoView(id) {
+  const p = PHOTOS.find(x => x.id === id);
+  if (!p) return '';
+  return `<div class="wrap"><div class="top"><button class="back" data-act="close">${I(ICON.back, 20)}</button><span class="muted">${p.pose} · ${fmtDate(p.d)}</span></div>
+    <img class="photo-full" src="${URLS[id]}" alt="${p.pose} photo, ${fmtDate(p.d)}">
+    ${avgNote(p.d) ? `<p class="muted" style="margin:10px 4px 0">${avgNote(p.d)}</p>` : ''}
+    <button class="btn sec" data-act="del-photo" data-id="${id}">Delete photo</button></div>`;
+}
+function renderCompare(ids) {
+  const [a, b] = ids.map(id => PHOTOS.find(x => x.id === id)).filter(Boolean).sort((x, y) => x.d < y.d ? -1 : 1);
+  if (!a || !b) return '';
+  const gap = Math.round((dateOf(b.d) - dateOf(a.d)) / 864e5);
+  const col = p => `<div><img src="${URLS[p.id]}" alt="${p.pose} photo, ${fmtDate(p.d)}"><div class="tt">${dateOf(p.d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div><div class="st">${p.pose}${avgNote(p.d) ? ' · ' + avgNote(p.d) : ''}</div></div>`;
+  return `<div class="wrap"><div class="top"><button class="back" data-act="close">${I(ICON.back, 20)}</button><span class="muted">${gap === 0 ? 'Same day' : `${gap} day${gap > 1 ? 's' : ''} apart`}</span></div>
+    <div class="h1" style="margin-top:16px">Before & after</div>
+    <div class="cmp">${col(a)}${col(b)}</div></div>`;
 }
 
 function drawChart() {
@@ -628,7 +725,10 @@ function render() {
   const ov = document.getElementById('ov');
   if (ui.overlay) {
     const y = ov.firstElementChild?.scrollTop || 0;
-    ov.innerHTML = `<div class="overlay">${ui.overlay.type === 'session' ? renderSession(ui.overlay.id) : renderRoutine(ui.overlay.id)}</div>`;
+    const o = ui.overlay;
+    const html = o.type === 'session' ? renderSession(o.id) : o.type === 'routine' ? renderRoutine(o.id) : o.type === 'photo' ? renderPhotoView(o.id) : renderCompare(o.ids);
+    if (!html) { ui.overlay = null; ov.innerHTML = ''; return render(); }
+    ov.innerHTML = `<div class="overlay">${html}</div>`;
     ov.firstElementChild.scrollTop = y;
   } else ov.innerHTML = '';
   if (ui.tab === 'progress') drawChart();
@@ -690,8 +790,30 @@ document.addEventListener('click', e => {
       S.measures = S.measures.filter(x => x.d !== today()); S.measures.push(m); toast('Saved'); break;
     }
     case 'rm-measure': S.measures = S.measures.filter(x => x.d !== b.dataset.k); break;
+    case 'pose': ui.pose = b.dataset.id; break;
+    case 'cmp': ui.cmp = ui.cmp ? null : []; break;
+    case 'photo': {
+      const id = b.dataset.id;
+      if (!ui.cmp) { ui.overlay = { type: 'photo', id }; break; }
+      ui.cmp = ui.cmp.includes(id) ? ui.cmp.filter(x => x !== id) : [...ui.cmp, id];
+      if (ui.cmp.length === 2) { ui.overlay = { type: 'compare', ids: ui.cmp }; ui.cmp = null; }
+      break;
+    }
+    case 'del-photo': {
+      if (!b.dataset.armed) { b.dataset.armed = 1; b.textContent = 'Tap again to delete'; return; }
+      const id = b.dataset.id;
+      PH.del(id).then(() => {
+        URL.revokeObjectURL(URLS[id]); delete URLS[id];
+        PHOTOS = PHOTOS.filter(x => x.id !== id); ui.overlay = null; toast('Photo deleted'); render();
+      }).catch(() => toast('Couldn\'t delete that photo'));
+      return;
+    }
     case 'reset':
-      if (b.dataset.armed) { S = { start: today(), days: {}, weights: [], measures: [], last: null }; toast('Reset'); }
+      if (b.dataset.armed) {
+        S = { start: today(), days: {}, weights: [], measures: [], last: null };
+        PH.clear().catch(() => {}); Object.values(URLS).forEach(u => URL.revokeObjectURL(u)); PHOTOS = []; URLS = {};
+        toast('Reset');
+      }
       else { b.dataset.armed = 1; b.textContent = 'Tap again to erase everything'; return; }
       break;
   }
@@ -699,7 +821,9 @@ document.addEventListener('click', e => {
 });
 
 document.addEventListener('change', e => {
-  const t = e.target, which = t.dataset.in; if (!which) return;
+  const t = e.target;
+  if (t.id === 'ph-in') { addPhotos([...t.files]); t.value = ''; return; }
+  const which = t.dataset.in; if (!which) return;
   const d = day(ui.sel);
   if (which === 'steps') { d.steps = Math.max(0, parseInt(t.value) || 0); save(); render(); return; }
   if (which === 'w' || which === 'r') {
@@ -714,6 +838,10 @@ document.addEventListener('change', e => {
 let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => ui.tab === 'progress' && drawChart(), 150); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden && ui.sel < today() && !ui.overlay) { ui.sel = today(); render(); } });
 render();
+PH.all().then(arr => {
+  PHOTOS = arr; arr.forEach(p => URLS[p.id] = URL.createObjectURL(p.blob));
+  if (arr.length) render();
+}).catch(() => {});
 </script>
 </body>
 </html>
