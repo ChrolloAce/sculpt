@@ -14,29 +14,32 @@
 <title>Sculpt</title>
 <style>
 :root{
-  --ink:#212124; --ink-deep:#0A0A0D; --t1:#1F141A; --t2:#736166; --t3:#A69499;
-  --glow:#F58FA8; --soft:#FFF0F0; --sage:#85C299; --water:#66B8EB; --rose:#E09485;
-  --border:#E6E6EB; --track:#EBEBF0; --line-avg:#C2456A; --dot-day:#E8A07A;
+  --ink:#212124; --t1:#1F141A; --t2:#736166; --t3:#A69499;
+  --glow:#F58FA8; --soft:#FFF0F0; --sage:#85C299; --sage-soft:#E7F3EA; --water:#66B8EB; --rose:#E09485;
+  --miss:#F3C9C2; --border:#E6E6EB; --track:#EBEBF0; --line-avg:#C2456A; --dot-day:#E8A07A; --tag-ink:#B4506C;
   color-scheme:light;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:#fff;color:var(--t1);font:15px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif}
-button{font:inherit;color:inherit;cursor:pointer}
-input{font:inherit;color:var(--t1)}
+button,select{font:inherit;color:inherit;cursor:pointer}
+input,select{font:inherit;color:var(--t1)}
+a{color:inherit;text-decoration:none}
 [hidden]{display:none!important}
 .wrap{max-width:560px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 14px) 20px calc(env(safe-area-inset-bottom) + 104px)}
 .rounded{font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif}
+.num{font-variant-numeric:tabular-nums}
 
 /* header */
-.top{display:flex;justify-content:space-between;align-items:center}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .pill{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:999px;background:rgba(255,255,255,.75);border:1px solid rgba(245,143,168,.3);font-size:14px;font-weight:600;box-shadow:0 4px 10px rgba(245,143,168,.15)}
 .pill svg{color:var(--glow)}
 .ring{width:38px;height:38px;position:relative;display:grid;place-items:center;font-size:10px;font-weight:700}
 .ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
-.hero{text-align:center;margin:18px 0 6px}
-.hero .lbl{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
-.hero .num{font-size:58px;font-weight:800;color:var(--ink);line-height:1.05}
+.hero{display:block;width:100%;text-align:center;margin:16px 0 4px;background:none;border:0;padding:0}
+.hero .lbl{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3)}
+.hero .big{font-size:58px;font-weight:800;color:var(--ink);line-height:1.05}
 .hero .sub{font-size:13px;color:var(--t2)}
+.hero .hbar{width:140px;margin:10px auto 0}
 .week{display:flex;justify-content:space-between;margin:16px 0 18px;gap:4px}
 .wd{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:4px 0}
 .wd span{font-size:11px;font-weight:600;color:var(--t3)}
@@ -44,111 +47,165 @@ input{font:inherit;color:var(--t1)}
 .wd.done b{background:var(--ink);border-color:var(--ink);color:#fff}
 .wd.sel b{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--glow)}
 .wd.fut b{opacity:.45}
-
 .sheet{background:#fff;border-radius:30px 30px 0 0;margin:0 -20px;padding:6px 20px 0;box-shadow:0 -10px 24px rgba(245,143,168,.16)}
-.label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin:22px 4px 10px}
-.h1{font-size:28px;font-weight:800;margin:8px 0 2px;letter-spacing:-.3px}
-.lead{color:var(--t2);font-size:14px;margin:0 0 6px}
+
+/* type */
+.label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin:26px 4px 10px;display:flex;align-items:center;gap:6px}
+.h1{font-size:30px;font-weight:800;margin:6px 0 2px;letter-spacing:-.4px}
+.lead{color:var(--t2);font-size:14px;margin:0}
+.tt{font-size:16px;font-weight:700}
+.st{font-size:13px;color:var(--t2);margin-top:2px}
+.muted{color:var(--t3);font-size:13px}
+.small{font-size:12px}
 
 /* cards */
 .card{background:#fff;border:1px solid var(--border);border-radius:22px;overflow:hidden}
-.stack>*+*{margin-top:12px}
+.card.ink{background:var(--ink);border-color:var(--ink);color:#fff}
+.card.soft{background:var(--soft);border-color:transparent}
+.stack{display:flex;flex-direction:column;gap:12px}
 .pad{padding:16px}
-.habit{display:flex;min-height:84px;width:100%;text-align:left;background:none;border:0;padding:0}
+.habit{display:flex;min-height:84px;width:100%;text-align:left;background:none;border:0;padding:0;color:inherit}
 .slab{width:72px;flex:none;background:var(--ink);display:grid;place-items:center;color:#fff}
 .slab.soft{background:var(--soft);color:var(--ink)}
 .hb{flex:1;display:flex;align-items:center;gap:12px;padding:12px 14px;min-width:0}
 .hb .tx{flex:1;min-width:0}
-.tt{font-size:16px;font-weight:700}
-.st{font-size:13px;color:var(--t2);margin-top:2px}
 .check{width:44px;height:44px;flex:none;border-radius:13px;border:1.5px solid var(--border);background:#fff;display:grid;place-items:center;color:transparent}
 .check.on{background:var(--ink);border-color:var(--ink);color:#fff}
-.drop{border-top:1px solid var(--border);padding:14px 16px}
-.bar{height:6px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:8px}
+.drop{border-top:1px solid var(--border);padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.bar{height:6px;border-radius:99px;background:var(--track);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--ink);border-radius:99px}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.chip{height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--border);background:#fff;font-size:14px;font-weight:600}
-.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
-.field{height:44px;border-radius:14px;border:1px solid var(--border);padding:0 12px;background:#fff;min-width:0;flex:1;font-size:16px}
-.field.sm{flex:none;width:76px;text-align:center}
-.btn{display:block;width:100%;height:56px;border-radius:999px;border:0;background:var(--ink);color:#fff;font-size:17px;font-weight:700;margin-top:18px}
+.chip{height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--border);background:#fff;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.chip.on,.chip.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.field{height:44px;border-radius:14px;border:1px solid var(--border);padding:0 12px;background:#fff;min-width:0;flex:1;font-size:16px;width:100%}
+.field:focus,select.field:focus{outline:2px solid var(--glow);outline-offset:0;border-color:transparent}
+select.field{appearance:none;-webkit-appearance:none;padding-right:28px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23736166' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 12px center}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:56px;border-radius:999px;border:0;background:var(--ink);color:#fff;font-size:17px;font-weight:700}
 .btn.done{background:var(--sage)}
-.btn.sec{height:50px;font-size:15px;background:#fff;color:var(--ink);border:1px solid var(--border);margin-top:12px}
-.btn.small{height:44px;font-size:15px;margin-top:12px}
-.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--soft);color:#B4506C;letter-spacing:.2px}
-.tag.g{background:#E7F3EA;color:#3E7A50}
-.muted{color:var(--t3);font-size:13px}
-.list-row{display:flex;align-items:center;gap:10px;padding:12px 16px}
+.btn.sec{height:50px;font-size:15px;background:#fff;color:var(--ink);border:1px solid var(--border)}
+.btn.sm{height:46px;font-size:15px}
+.btn.light{background:#fff;color:var(--ink)}
+.tag{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--tag-ink);letter-spacing:.2px;white-space:nowrap}
+.tag.g{background:var(--sage-soft);color:#3E7A50}
+.tag.n{background:var(--track);color:var(--t2)}
+.list-row{display:flex;align-items:center;gap:12px;padding:12px 16px;width:100%;background:none;border:0;text-align:left;color:inherit}
 .list-row+.list-row{border-top:1px solid var(--border)}
 .list-row .tx{flex:1;min-width:0}
 .x{width:32px;height:32px;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--t3);display:grid;place-items:center;flex:none}
 .plus{width:36px;height:36px;border-radius:12px;border:0;background:var(--ink);color:#fff;display:grid;place-items:center;flex:none}
-.prose{font-size:14px;color:var(--t1)}
-.prose p{margin:0 0 10px}
-.prose ul{margin:0 0 10px;padding-left:18px}
-.prose li{margin-bottom:6px}
-.prose b{font-weight:700}
-.prose h4{font-size:15px;margin:14px 0 6px}
+.ico{width:40px;height:40px;border-radius:13px;background:var(--soft);color:var(--ink);display:grid;place-items:center;flex:none}
+.ico.ink{background:var(--ink);color:#fff}
+.ico.g{background:var(--sage-soft);color:#3E7A50}
+.linkbtn{background:none;border:0;padding:0;color:var(--t2);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+
+/* grids */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tile{background:#fff;border:1px solid var(--border);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.tile b{font-size:22px;font-weight:800;line-height:1}
+.tile small{font-size:12px;color:var(--t2)}
+.bubble{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--border);border-radius:20px;padding:14px}
+.bubble .tx{flex:1;min-width:0}
+.bubble .tt{font-size:15px}
 
 /* segmented */
-.seg{display:flex;background:var(--track);border-radius:999px;padding:4px;margin:14px 0 4px}
+.seg{display:flex;background:var(--track);border-radius:999px;padding:4px;margin:16px 0 0}
 .seg button{flex:1;height:36px;border-radius:999px;border:0;background:none;font-size:13px;font-weight:600;color:var(--t2)}
 .seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.08)}
 
-/* macro */
-.macro{display:flex;gap:16px;align-items:center}
+/* macros */
+.macro{display:flex;gap:18px;align-items:center}
 .bigring{width:112px;height:112px;position:relative;flex:none;display:grid;place-items:center;text-align:center}
 .bigring svg{position:absolute;inset:0;transform:rotate(-90deg)}
 .bigring b{font-size:24px;font-weight:800;display:block;line-height:1}
 .bigring small{font-size:11px;color:var(--t2)}
-.mx{flex:1}
-.mx .m+.m{margin-top:10px}
-.mx .m div:first-child{display:flex;justify-content:space-between;font-size:13px;font-weight:600}
+.mx{flex:1;display:flex;flex-direction:column;gap:10px}
+.mx .m>div:first-child{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px}
 .mx .m span{color:var(--t2);font-weight:500}
+.mchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.mchip{font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;background:var(--track);color:var(--t2)}
+.mchip.k{background:var(--ink);color:#fff}
+
+/* nutrition facts label */
+.facts{border:2px solid var(--ink);border-radius:16px;padding:12px 14px;background:#fff}
+.facts h4{margin:0;font-size:22px;font-weight:900;letter-spacing:-.3px}
+.facts .serv{font-size:13px;color:var(--t2);padding-bottom:8px;border-bottom:8px solid var(--ink)}
+.facts .cal{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:4px solid var(--ink)}
+.facts .cal span{font-size:18px;font-weight:800}
+.facts .cal b{font-size:32px;font-weight:900}
+.facts .fr{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px}
+.facts .fr.sub{padding-left:16px;color:var(--t2)}
+.facts .fr b{font-weight:800}
+.facts .fr:last-child{border-bottom:0}
+.facts .src{font-size:11px;color:var(--t3);margin-top:8px}
 
 /* sets */
 .ex{padding:16px}
 .ex .hd{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .sets{margin-top:12px;display:grid;grid-template-columns:28px 1fr 1fr 44px;gap:8px;align-items:center}
 .sets .n{font-size:13px;font-weight:700;color:var(--t3);text-align:center}
-.sets .field{width:100%;text-align:center}
-.sets .check{width:44px;height:44px}
+.sets .field{text-align:center}
 .cue{font-size:13px;color:var(--t2);margin-top:8px}
 
-/* overlay */
-.overlay{position:fixed;inset:0;background:#fff;z-index:30;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.back{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:#fff;display:grid;place-items:center}
-
-/* chart */
-.chart{position:relative;margin-top:8px}
-.chart svg{display:block;width:100%;overflow:visible}
-.tip{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px 10px;font-size:12px;box-shadow:0 6px 18px rgba(0,0,0,.08);white-space:nowrap;transform:translate(-50%,-100%)}
-.legend{display:flex;gap:16px;font-size:12px;color:var(--t2);margin-top:6px}
-.legend i{display:inline-block;vertical-align:middle;margin-right:6px}
+/* challenge */
+.ladder{display:flex;align-items:flex-start;justify-content:space-between;position:relative;margin:4px 6px 0}
+.ladder:before{content:"";position:absolute;left:28px;right:28px;top:21px;height:2px;background:var(--track)}
+.step{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:0;width:84px}
+.step .c{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#fff;border:2px solid var(--track);color:var(--t3);font-weight:800;font-size:15px}
+.step.cur .c{background:var(--ink);border-color:var(--ink);color:#fff;box-shadow:0 0 0 4px var(--soft)}
+.step.won .c{background:var(--sage);border-color:var(--sage);color:#fff}
+.step span{font-size:12px;font-weight:700;text-align:center;line-height:1.2}
+.step small{font-size:11px;color:var(--t3);text-align:center}
+.dots{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.dot{aspect-ratio:1;border-radius:50%;background:var(--track);display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--t3)}
+.dot.done{background:var(--ink);color:#fff}
+.dot.miss{background:var(--miss);color:#9A4A3F}
+.dot.today{background:#fff;box-shadow:inset 0 0 0 2px var(--glow);color:var(--ink)}
+.legend2{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--t2)}
+.legend2 i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
 .stat3{display:grid;grid-template-columns:repeat(3,1fr);text-align:center}
 .stat3>div{padding:14px 6px}
 .stat3>div+div{border-left:1px solid var(--border)}
 .stat3 b{display:block;font-size:20px;font-weight:800}
 .stat3 small{font-size:11px;color:var(--t2)}
+.confirm{background:var(--soft);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
 
-/* photos */
+/* overlay */
+.overlay{position:fixed;inset:0;background:#fff;z-index:30;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.back{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:#fff;display:grid;place-items:center;flex:none}
+.searchbar{display:flex;align-items:center;gap:8px;height:48px;border-radius:16px;background:var(--track);padding:0 14px;color:var(--t2)}
+.searchbar input{flex:1;border:0;background:none;height:100%;font-size:16px;outline:none;min-width:0}
+.steps-split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.steps-split>div{background:var(--track);border-radius:16px;padding:10px 12px}
+.steps-split small{display:block;font-size:11px;color:var(--t2);font-weight:600}
+.steps-split b{font-size:20px;font-weight:800}
+.ol{margin:0;padding:0;list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:12px}
+.ol li{counter-increment:s;display:flex;gap:12px;font-size:14px}
+.ol li:before{content:counter(s);width:28px;height:28px;flex:none;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700}
+
+/* chart & photos */
+.chart{position:relative;margin-top:8px}
+.chart svg{display:block;width:100%;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px 10px;font-size:12px;box-shadow:0 6px 18px rgba(0,0,0,.08);white-space:nowrap;transform:translate(-50%,-100%)}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--t2);margin-top:6px}
+.legend i{display:inline-block;vertical-align:middle;margin-right:6px}
 .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .ph{position:relative;aspect-ratio:3/4;border-radius:14px;overflow:hidden;border:0;padding:0;background:var(--track)}
 .ph img{width:100%;height:100%;object-fit:cover;display:block}
 .ph .tag{position:absolute;left:6px;bottom:6px;background:rgba(255,255,255,.9)}
 .ph.picked{box-shadow:inset 0 0 0 3px var(--glow)}
-label.btn{display:flex;align-items:center;justify-content:center;cursor:pointer}
+label.btn{cursor:pointer}
 .vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
 .cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
 .cmp img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:16px;display:block}
-.cmp .tt{font-size:14px;margin-top:8px}
 .photo-full{width:100%;border-radius:22px;margin-top:16px;display:block}
 
 /* tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 6px calc(env(safe-area-inset-bottom) + 6px)}
 .tabs button{flex:1;max-width:96px;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:var(--t3);padding:4px 0}
 .tabs button.on{color:var(--ink)}
-.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 84px);transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;z-index:40}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 84px);transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;z-index:40;max-width:calc(100% - 40px);text-align:center}
+@media (prefers-reduced-motion: no-preference){.card,.bubble,.tile{transition:transform .15s}.chip:active,.btn:active,.plus:active{transform:scale(.97)}}
 </style>
 </head>
 <body>
@@ -159,7 +216,7 @@ label.btn{display:flex;align-items:center;justify-content:center;cursor:pointer}
 
 <script>
 /* ---------- icons ---------- */
-const I = (d, s = 24, w = 1.8) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const I = (d, s = 24, w = 1.8) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const ICON = {
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   dumbbell: '<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>',
@@ -183,118 +240,218 @@ const ICON = {
   back2: '<path d="M12 3v18"/><path d="M6 6c2 1 4 1 6 0 2 1 4 1 6 0M5 11c2.5 1 4.5 1 7 0 2.5 1 4.5 1 7 0M7 16c2 .8 3.5.8 5 0 1.5.8 3 .8 5 0"/>',
   walk: '<circle cx="13" cy="4.5" r="2"/><path d="M10 21l2-6 3 3v3M12 15l1-5 3 3h3M13 10l-4 1-2 4"/>',
   rest: '<path d="M4 18c3-6 13-6 16 0"/><path d="M8 9a4 4 0 0 1 8 0"/>',
+  trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M9 17h6"/>',
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>',
+  heart: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+  scale: '<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 10a5 5 0 0 1 7 0L12 13"/>',
+  calendar: '<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>',
+  height: '<path d="M12 3v18M8 7l4-4 4 4M8 17l4 4 4-4"/>',
+  home: '<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-5h4v5"/>',
+  bolt: '<path d="M13 3L5 14h6l-1 7 8-11h-6z"/>',
+  sparkle: '<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>',
+  refresh: '<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  scaleFood: '<path d="M4 15h16l-2 5H6zM12 15V9M8 9h8"/><circle cx="12" cy="6" r="2"/>',
+  swap: '<path d="M7 7h12l-3-3M17 17H5l3 3"/>',
+  clip: '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/>',
+  fish: '<path d="M3 12c3-4 8-5 12-3l5-3v12l-5-3c-4 2-9 1-12-3z"/><circle cx="8" cy="11" r=".6" fill="currentColor"/>',
+  bowl: '<path d="M3 11h18a9 9 0 0 1-18 0zM8 7c0-1.5 1-2 1-3M12 7c0-1.5 1-2 1-3M16 7c0-1.5 1-2 1-3"/>',
+  cheese: '<path d="M3 15l12-9 6 5v8H3z"/><circle cx="9" cy="15" r="1.2"/><circle cx="15" cy="14" r="1"/>',
+  ruler: '<rect x="3" y="8" width="18" height="8" rx="2"/><path d="M7 8v3M11 8v4M15 8v3M19 8v4"/>',
 };
 
-/* ---------- plan data ---------- */
-const TARGET = { kcal: 1800, p: 125, c: 170, f: 62, steps: 12000, stepsMin: 10000, stepsHard: 15000, water: 2500, goal: 125 };
+/* ---------- training plan ---------- */
+const TARGET = { kcal: 1800, p: 125, c: 170, f: 60, fib: 25, steps: 12000, stepsMin: 10000, stepsHard: 15000, water: 2500, goal: 125 };
 
 const SESSIONS = [
-  { id: 'A', name: 'Glutes · Strength', focus: 'Glute max — size, roundness & lift', icon: 'glute', ex: [
-    { n: 'Barbell hip thrust', t: 'Glute max', s: 4, r: '6–8', rest: '2–3 min', c: 'Shins vertical at the top, chin tucked, ribs down. Finish with a posterior pelvic tilt — squeeze 1s.' },
-    { n: 'Romanian deadlift', t: 'Lower glute max · hamstrings', s: 3, r: '8–10', rest: '2 min', c: 'Push hips back, soft knees, bar close to legs. Stop when your hips stop moving back — don\'t chase depth.' },
-    { n: '45° back extension (glute-biased)', t: 'Glute max', s: 3, r: '12–15', rest: '90s', c: 'Pad below hip bones, feet turned out, upper back rounded. Drive hips into the pad, squeeze at the top.' },
-    { n: 'Cable kickback', t: 'Upper glute max', s: 3, r: '12–15 / side', rest: '60s', c: 'Lean forward slightly, kick back and slightly out. Stop before your lower back arches.' },
-    { n: 'Hip adduction machine', t: 'Inner thighs', s: 3, r: '15', rest: '60s', c: '2s squeeze, 3s slow return. Moderate weight — tone, not size.' },
+  { id: 'A', name: 'Glute Strength', focus: 'Size, roundness and lift', icon: 'glute', ex: [
+    { n: 'Barbell hip thrust', t: 'Glute max', s: 4, r: '6–8', rest: '2 to 3 min', c: 'Shins vertical at the top, chin tucked, ribs down. Finish with a hard squeeze for 1 second.' },
+    { n: 'Romanian deadlift', t: 'Lower glutes and hamstrings', s: 3, r: '8–10', rest: '2 min', c: 'Push your hips back with soft knees and keep the bar close. Stop when your hips stop moving back.' },
+    { n: '45° back extension', t: 'Glute max', s: 3, r: '12–15', rest: '90 sec', c: 'Pad below your hip bones, feet turned out, upper back rounded. Drive your hips into the pad.' },
+    { n: 'Cable kickback', t: 'Upper glutes', s: 3, r: '12–15 each side', rest: '60 sec', c: 'Lean forward a little and kick back and slightly out. Stop before your lower back arches.' },
+    { n: 'Hip adduction machine', t: 'Inner thighs', s: 3, r: '15', rest: '60 sec', c: 'Squeeze for 2 seconds, return slowly for 3. Moderate weight to tone, not build size.' },
   ]},
-  { id: 'B', name: 'Back & Core', focus: 'Width, V-taper & a defined back', icon: 'back2', ex: [
-    { n: 'Lat pulldown (wide grip)', t: 'Lats — width', s: 4, r: '8–10', rest: '2 min', c: 'Chest up, pull elbows down to your back pockets. Control the way up.' },
-    { n: 'Chest-supported row', t: 'Mid back · rhomboids', s: 3, r: '10–12', rest: '90s', c: 'Chest stays on the pad. Squeeze shoulder blades together for 1s.' },
-    { n: 'Single-arm cable row', t: 'Lats', s: 3, r: '12 / side', rest: '60s', c: 'Reach long at the front, pull elbow toward your hip.' },
-    { n: 'Straight-arm pulldown', t: 'Lats — detail', s: 3, r: '12–15', rest: '60s', c: 'Soft elbows, sweep the bar to your thighs, feel the lats only.' },
-    { n: 'Face pull', t: 'Rear delts · posture', s: 3, r: '15', rest: '60s', c: 'Pull to your forehead, thumbs back. Great for posture and a "snatched" upper back.' },
-    { n: 'Hanging knee raise', t: 'Lower abs', s: 3, r: '12', rest: '60s', c: 'No swinging. Curl the pelvis up, don\'t just lift the knees.' },
-    { n: 'Pallof press', t: 'Deep core · obliques', s: 3, r: '10 / side', rest: '45s', c: 'Resist rotation — keeps the waist tight without adding bulk.' },
+  { id: 'B', name: 'Back and Core', focus: 'Width and a defined back', icon: 'back2', ex: [
+    { n: 'Lat pulldown, wide grip', t: 'Lats', s: 4, r: '8–10', rest: '2 min', c: 'Chest up. Pull your elbows down toward your back pockets and control the way up.' },
+    { n: 'Chest supported row', t: 'Mid back', s: 3, r: '10–12', rest: '90 sec', c: 'Keep your chest on the pad and squeeze your shoulder blades together for 1 second.' },
+    { n: 'Single arm cable row', t: 'Lats', s: 3, r: '12 each side', rest: '60 sec', c: 'Reach long in front, then pull your elbow toward your hip.' },
+    { n: 'Straight arm pulldown', t: 'Lats', s: 3, r: '12–15', rest: '60 sec', c: 'Soft elbows. Sweep the bar down to your thighs and feel only your lats.' },
+    { n: 'Face pull', t: 'Rear delts and posture', s: 3, r: '15', rest: '60 sec', c: 'Pull toward your forehead with thumbs pointing back.' },
+    { n: 'Hanging knee raise', t: 'Lower abs', s: 3, r: '12', rest: '60 sec', c: 'No swinging. Curl your pelvis up instead of only lifting your knees.' },
+    { n: 'Pallof press', t: 'Deep core', s: 3, r: '10 each side', rest: '45 sec', c: 'Resist the twist. It tightens the waist without adding bulk.' },
   ]},
-  { id: 'C', name: 'Glute Med/Min & Inner Thighs', focus: 'The upper "shelf", hip dips & inner-thigh line', icon: 'glute', ex: [
-    { n: 'Hip abduction machine (lean forward)', t: 'Glute med · min', s: 4, r: '15–20', rest: '60s', c: 'Lean your torso forward and hold the seat — this shifts the work into the upper glute. Pause 1s open.' },
-    { n: 'Step-up (high box)', t: 'Glute max', s: 3, r: '8–10 / side', rest: '90s', c: 'Lean slightly forward, drive through the heel, lower slowly. Don\'t push off the back leg.' },
-    { n: 'Standing cable abduction', t: 'Glute med', s: 3, r: '15 / side', rest: '45s', c: 'Small range, slow tempo. Toes slightly in.' },
-    { n: 'Cable hip adduction', t: 'Inner thighs', s: 3, r: '15 / side', rest: '45s', c: 'Sweep across your body, control the return.' },
-    { n: 'Copenhagen plank', t: 'Inner thighs · core', s: 3, r: '20–30s / side', rest: '45s', c: 'Top leg on a bench, hips high. Start from the knee if needed.' },
-    { n: 'Frog pumps', t: 'Glute max — finisher', s: 2, r: '25–30', rest: '45s', c: 'Soles together, knees out, fast squeezes at the top.' },
+  { id: 'C', name: 'Upper Glutes and Inner Thighs', focus: 'The shelf, hip dips and a lean inner thigh', icon: 'glute', ex: [
+    { n: 'Hip abduction machine, leaning forward', t: 'Glute med and min', s: 4, r: '15–20', rest: '60 sec', c: 'Lean forward and hold the seat to shift the work into your upper glutes. Pause 1 second open.' },
+    { n: 'Step up, high box', t: 'Glute max', s: 3, r: '8–10 each side', rest: '90 sec', c: 'Lean forward a little, drive through your heel and lower slowly. Do not push off the back leg.' },
+    { n: 'Standing cable abduction', t: 'Glute med', s: 3, r: '15 each side', rest: '45 sec', c: 'Small range and slow tempo, toes turned in slightly.' },
+    { n: 'Cable hip adduction', t: 'Inner thighs', s: 3, r: '15 each side', rest: '45 sec', c: 'Sweep across your body and control the return.' },
+    { n: 'Copenhagen plank', t: 'Inner thighs and core', s: 3, r: '20–30 sec each side', rest: '45 sec', c: 'Top leg on a bench, hips high. Start from the knee if you need to.' },
+    { n: 'Frog pumps', t: 'Glute finisher', s: 2, r: '25–30', rest: '45 sec', c: 'Soles together, knees out, quick squeezes at the top.' },
   ]},
-  { id: 'D', name: 'Upper Tone & Core', focus: 'Lean shoulders, toned arms, tight waist', icon: 'back2', ex: [
-    { n: 'Pull-up (assisted if needed)', t: 'Lats', s: 4, r: '6–10', rest: '2 min', c: 'Full hang to chin over bar. Use a band or the machine to hit the reps.' },
-    { n: 'Seated cable row (neutral)', t: 'Mid back', s: 3, r: '10–12', rest: '90s', c: 'Tall posture, no leaning back.' },
-    { n: 'Dumbbell lateral raise', t: 'Side delts', s: 3, r: '15', rest: '60s', c: 'Light and strict. Rounder shoulders make the waist look smaller.' },
-    { n: 'Reverse pec deck', t: 'Rear delts', s: 3, r: '15', rest: '60s', c: 'Lead with the elbows, pause at the back.' },
-    { n: 'Push-up', t: 'Chest · triceps', s: 3, r: '2 short of failure', rest: '60s', c: 'Body in one line. Elevate hands if needed.' },
-    { n: 'Dead bug', t: 'Deep core', s: 3, r: '10 / side', rest: '30s', c: 'Lower back glued to the floor, exhale fully.' },
-    { n: 'Side plank', t: 'Obliques', s: 3, r: '30s / side', rest: '30s', c: 'Hips stacked and high.' },
+  { id: 'D', name: 'Upper Body and Core', focus: 'Lean shoulders, toned arms, tight waist', icon: 'back2', ex: [
+    { n: 'Pull up, assisted if needed', t: 'Lats', s: 4, r: '6–10', rest: '2 min', c: 'Full hang to chin over the bar. Use a band or the machine to hit your reps.' },
+    { n: 'Seated cable row, neutral grip', t: 'Mid back', s: 3, r: '10–12', rest: '90 sec', c: 'Sit tall and do not lean back.' },
+    { n: 'Dumbbell lateral raise', t: 'Side delts', s: 3, r: '15', rest: '60 sec', c: 'Light and strict. Rounder shoulders make your waist look smaller.' },
+    { n: 'Reverse pec deck', t: 'Rear delts', s: 3, r: '15', rest: '60 sec', c: 'Lead with your elbows and pause at the back.' },
+    { n: 'Push up', t: 'Chest and triceps', s: 3, r: 'Stop 2 reps before failure', rest: '60 sec', c: 'Body in one straight line. Raise your hands on a bench if needed.' },
+    { n: 'Dead bug', t: 'Deep core', s: 3, r: '10 each side', rest: '30 sec', c: 'Lower back pressed into the floor. Breathe out fully.' },
+    { n: 'Side plank', t: 'Obliques', s: 3, r: '30 sec each side', rest: '30 sec', c: 'Hips stacked and high.' },
   ]},
-  { id: 'E', name: 'Glutes · Volume', focus: 'Pump & shape — all three glute muscles', icon: 'glute', ex: [
-    { n: 'Barbell glute bridge', t: 'Glute max', s: 3, r: '12–15', rest: '90s', c: 'Shorter range than a thrust, constant tension. Squeeze 2s at the top.' },
-    { n: 'Single-leg hip thrust', t: 'Glute max', s: 3, r: '10–12 / side', rest: '60s', c: 'Bench-supported, push through the heel, keep hips level.' },
-    { n: 'B-stance RDL', t: 'Lower glute max', s: 3, r: '10 / side', rest: '60s', c: 'Back foot is just a kickstand, 80% of the load on the front leg.' },
-    { n: 'Cable pull-through', t: 'Glute max', s: 3, r: '15', rest: '60s', c: 'Hinge, then snap the hips through with a hard squeeze.' },
-    { n: 'Banded seated abduction', t: 'Glute med · min', s: 3, r: '20 + 10 partials', rest: '45s', c: 'Do one set upright, one leaning forward, one leaning back.' },
-    { n: 'Hip adduction machine', t: 'Inner thighs', s: 3, r: '15', rest: '60s', c: '2s squeeze, 3s slow return.' },
+  { id: 'E', name: 'Glute Volume', focus: 'Pump and shape for all three glute muscles', icon: 'glute', ex: [
+    { n: 'Barbell glute bridge', t: 'Glute max', s: 3, r: '12–15', rest: '90 sec', c: 'Shorter range than a thrust with constant tension. Squeeze 2 seconds at the top.' },
+    { n: 'Single leg hip thrust', t: 'Glute max', s: 3, r: '10–12 each side', rest: '60 sec', c: 'Back on a bench. Push through your heel and keep your hips level.' },
+    { n: 'B stance RDL', t: 'Lower glutes', s: 3, r: '10 each side', rest: '60 sec', c: 'The back foot is only a kickstand. Most of the weight stays on the front leg.' },
+    { n: 'Cable pull through', t: 'Glute max', s: 3, r: '15', rest: '60 sec', c: 'Hinge, then snap your hips through with a hard squeeze.' },
+    { n: 'Banded seated abduction', t: 'Glute med and min', s: 3, r: '20 plus 10 partials', rest: '45 sec', c: 'Do one set sitting tall, one leaning forward and one leaning back.' },
+    { n: 'Hip adduction machine', t: 'Inner thighs', s: 3, r: '15', rest: '60 sec', c: 'Squeeze for 2 seconds, return slowly for 3.' },
   ]},
-  { id: 'F', name: 'Incline Walk & Mobility', focus: 'Low-impact fat loss — keeps legs lean', icon: 'walk', cardio: true, ex: [
-    { n: 'Incline treadmill walk', t: 'Fat loss · steps', s: 1, r: '35–45 min', c: 'Incline 8–12%, 2.8–3.3 mph. No holding the rails. Counts toward your steps.' },
-    { n: 'Core routine', t: 'Core', s: 1, r: '10 min', c: 'Do the Core routine from the Train tab.' },
-    { n: 'Full stretch flow', t: 'Mobility', s: 1, r: '15 min', c: 'Do the Stretch routine — hold each one a little longer today.' },
+  { id: 'F', name: 'Incline Walk and Mobility', focus: 'Low impact fat loss that keeps legs lean', icon: 'walk', cardio: true, ex: [
+    { n: 'Incline treadmill walk', t: 'Fat loss', s: 1, r: '35–45 min', c: 'Incline 8 to 12, speed 2.8 to 3.3 mph. No holding the rails. It counts toward your steps.' },
+    { n: 'Core routine', t: 'Core', s: 1, r: '10 min', c: 'Do the core routine from the Train tab.' },
+    { n: 'Full stretch routine', t: 'Mobility', s: 1, r: '15 min', c: 'Do the stretch routine and hold each stretch a little longer today.' },
   ]},
 ];
-const REST = { id: 'R', name: 'Rest Day', focus: 'Steps + stretch only. Recovery builds the muscle.', icon: 'rest', cardio: true, ex: [
-  { n: 'Easy walk', t: 'Steps', s: 1, r: 'Hit 10k+', c: 'Outside if you can. Keep it relaxed.' },
-  { n: 'Stretch routine', t: 'Mobility', s: 1, r: '10–15 min', c: 'Focus on hips and adductors.' },
+const REST = { id: 'R', name: 'Rest Day', focus: 'Steps and stretching only. Recovery is when muscle grows.', icon: 'rest', cardio: true, ex: [
+  { n: 'Easy walk', t: 'Steps', s: 1, r: '10,000 steps', c: 'Outside if you can. Keep it relaxed.' },
+  { n: 'Stretch routine', t: 'Mobility', s: 1, r: '10–15 min', c: 'Focus on your hips and inner thighs.' },
 ]};
 const ROTATION = ['A', 'B', 'C', 'D', 'E', 'F'];
 
 const CORE = [
-  { n: 'Stomach vacuum', r: '3 × 20–30s', c: 'Exhale all air, pull your belly button to your spine and hold. Trains the deep "corset" muscle for a smaller waist.' },
-  { n: 'Dead bug', r: '2 × 10 / side', c: 'Lower back flat, slow reach of opposite arm and leg.' },
-  { n: 'Hollow hold', r: '3 × 20–30s', c: 'Bend the knees to make it easier.' },
-  { n: 'Side plank', r: '2 × 30s / side', c: 'Hips high, body in a line.' },
-  { n: 'Bird dog', r: '2 × 10 / side', c: 'Slow, no hip rotation.' },
+  { n: 'Stomach vacuum', r: '3 × 20–30 sec', c: 'Breathe out fully, pull your belly button toward your spine and hold. Trains the deep muscle that keeps your waist tight.' },
+  { n: 'Dead bug', r: '2 × 10 each side', c: 'Lower back flat. Slowly reach the opposite arm and leg.' },
+  { n: 'Hollow hold', r: '3 × 20–30 sec', c: 'Bend your knees to make it easier.' },
+  { n: 'Side plank', r: '2 × 30 sec each side', c: 'Hips high, body in one line.' },
+  { n: 'Bird dog', r: '2 × 10 each side', c: 'Slow, with no hip rotation.' },
 ];
 const STRETCH = [
-  { n: 'Kneeling hip-flexor stretch', r: '45s / side', c: 'Squeeze the glute of the back leg. Tight hip flexors make glutes work less.' },
-  { n: 'Pigeon pose', r: '45s / side', c: 'Opens the glutes and outer hips.' },
-  { n: '90/90 hip switches', r: '1 min', c: 'Slowly rotate knees side to side.' },
-  { n: 'Frog / butterfly stretch', r: '1 min', c: 'Inner thighs (adductors).' },
-  { n: 'Seated hamstring fold', r: '45s', c: 'Hinge from the hips, long spine.' },
-  { n: 'Cat–cow', r: '1 min', c: 'Mobilizes the back you\'re training.' },
-  { n: 'Thread the needle', r: '30s / side', c: 'Upper back rotation.' },
-  { n: 'Child\'s pose with lat reach', r: '1 min', c: 'Walk hands to each side to stretch the lats.' },
+  { n: 'Kneeling hip flexor stretch', r: '45 sec each side', c: 'Squeeze the glute of the back leg. Tight hip flexors make your glutes work less.' },
+  { n: 'Pigeon pose', r: '45 sec each side', c: 'Opens your glutes and outer hips.' },
+  { n: '90/90 hip switches', r: '1 min', c: 'Slowly rotate your knees from side to side.' },
+  { n: 'Frog or butterfly stretch', r: '1 min', c: 'Stretches your inner thighs.' },
+  { n: 'Seated hamstring fold', r: '45 sec', c: 'Hinge from the hips with a long spine.' },
+  { n: 'Cat cow', r: '1 min', c: 'Moves the back you are training.' },
+  { n: 'Thread the needle', r: '30 sec each side', c: 'Upper back rotation.' },
+  { n: 'Child’s pose with side reach', r: '1 min', c: 'Walk your hands to each side to stretch your lats.' },
 ];
 
-/* ~ approximate values, adjust after weighing */
-const FOODS = [
-  { g: 'Breakfast', n: 'Cappuccino (200ml whole milk + 1 tsp honey)', k: 145, p: 7, c: 16, f: 7 },
-  { g: 'Breakfast', n: '3 eggs + 30g mozzarella in 1 tsp butter', k: 335, p: 26, c: 2, f: 25 },
-  { g: 'Breakfast', n: 'Arepa (60g) + 2 eggs + 20g mozzarella', k: 390, p: 20, c: 30, f: 20 },
-  { g: 'Breakfast', n: 'Berries (100g)', k: 55, p: 1, c: 13, f: 0 },
-  { g: 'Lunch', n: 'GF pasta 70g dry + 150g 90/10 beef + 1 tsp butter + peppers', k: 580, p: 35, c: 60, f: 20 },
-  { g: 'Lunch', n: 'Jasmine rice 150g cooked + 150g sirloin cubes + veg', k: 460, p: 38, c: 48, f: 11 },
-  { g: 'Lunch', n: 'Cucumber, tomato & pepper salad', k: 35, p: 1, c: 7, f: 0 },
-  { g: 'Dinner', n: 'Purple sweet potato mash 200g + 150g 90/10 beef + 20g mozzarella', k: 535, p: 37, c: 41, f: 23 },
-  { g: 'Dinner', n: '150g sirloin + 150g sweet potato + salad + ¼ avocado', k: 475, p: 36, c: 40, f: 18 },
-  { g: 'Snack', n: 'Plain Greek yogurt 200g + 80g berries + 1 tsp honey', k: 212, p: 21, c: 25, f: 4 },
-  { g: 'Snack', n: 'Cottage cheese 150g + apple', k: 230, p: 18, c: 31, f: 3 },
-  { g: 'Snack', n: '2 hard-boiled eggs + apple', k: 250, p: 13, c: 26, f: 10 },
-  { g: 'Snack', n: 'Vanilla Greek yogurt cup', k: 100, p: 12, c: 9, f: 2 },
-  { g: 'Snack', n: 'Protein bar', k: 200, p: 20, c: 22, f: 7 },
-  { g: 'Extras', n: 'Butter or ghee (1 tsp)', k: 34, p: 0, c: 0, f: 4 },
-  { g: 'Extras', n: 'Butter or ghee (1 tbsp)', k: 102, p: 0, c: 0, f: 12 },
-  { g: 'Extras', n: 'Honey (1 tsp)', k: 21, p: 0, c: 6, f: 0 },
-  { g: 'Extras', n: 'Avocado (½)', k: 160, p: 2, c: 9, f: 15 },
-  { g: 'Treat', n: 'Pizza (2 slices)', k: 560, p: 24, c: 66, f: 22 },
-  { g: 'Treat', n: 'Ice cream (1 cup)', k: 280, p: 5, c: 32, f: 15 },
+/* ---------- food database ----------
+   Values per 100 g: kcal, protein, carbs, fat, fiber, sugar, sat fat, sodium (mg).
+   USDA FoodData Central (SR Legacy) unless noted. */
+const FOOD_CATS = ['Dairy and eggs', 'Meat and fish', 'Carbs', 'Fruit', 'Vegetables', 'Fats and extras', 'Drinks and treats'];
+const STAPLE_ROWS = [
+  ['egg', 'Egg', 'Dairy and eggs', 'USDA', [143, 12.6, 0.7, 9.5, 0, 0.4, 3.1, 142], [['1 large egg', 50]], 'eggs whole'],
+  ['eggw', 'Egg white', 'Dairy and eggs', 'USDA', [52, 10.9, 0.7, 0.2, 0, 0.7, 0, 166], [['1 large white', 33]], ''],
+  ['milk', 'Whole milk', 'Dairy and eggs', 'USDA', [61, 3.1, 4.8, 3.2, 0, 5.0, 1.9, 43], [['1 cup (240 ml)', 244], ['100 ml', 103], ['1 tbsp', 15]], 'leche'],
+  ['cream', 'Heavy cream', 'Dairy and eggs', 'USDA', [340, 2.8, 2.8, 36.1, 0, 2.9, 23.0, 27], [['1 tbsp', 15]], 'heavy milk whipping'],
+  ['mozz', 'Mozzarella, whole milk', 'Dairy and eggs', 'USDA', [299, 22.2, 2.4, 22.1, 0, 0, 13.9, 486], [['1 oz', 28.4], ['¼ cup shredded', 28]], 'cheese'],
+  ['mozzps', 'Mozzarella, part skim', 'Dairy and eggs', 'USDA', [254, 24.3, 2.8, 15.9, 0, 1.1, 10.1, 619], [['1 oz', 28.4]], 'cheese'],
+  ['campesino', 'Colombian cheese (queso campesino)', 'Dairy and eggs', 'Colanta label', [302, 19, 2.4, 24, 0, null, 16, null], [['1 slice (30 g)', 30]], 'queso colombiano'],
+  ['quesofresco', 'Queso fresco', 'Dairy and eggs', 'USDA', [299, 18.1, 3.0, 23.8, 0, 2.3, 12.9, 751], [['1 oz', 28.4]], 'cheese'],
+  ['gyw', 'Greek yogurt, plain whole milk', 'Dairy and eggs', 'USDA', [97, 9.0, 4.0, 5.0, 0, 4.0, 2.4, 35], [['¾ cup (170 g)', 170], ['1 cup', 227]], 'yoghurt'],
+  ['gy2', 'Greek yogurt, plain 2%', 'Dairy and eggs', 'USDA', [73, 9.9, 3.9, 1.9, 0, 3.6, 1.2, 34], [['¾ cup (170 g)', 170]], 'yoghurt lowfat'],
+  ['gy0', 'Greek yogurt, plain nonfat', 'Dairy and eggs', 'USDA', [59, 10.2, 3.6, 0.4, 0, 3.2, 0.1, 36], [['¾ cup (170 g)', 170]], 'yoghurt'],
+  ['gyvan', 'Vanilla Greek yogurt cup', 'Dairy and eggs', 'Estimate, check your label', [67, 8, 6.7, 1.3, 0, 6, 0.9, 40], [['1 cup (150 g)', 150]], 'yoghurt'],
+  ['cott2', 'Cottage cheese 2%', 'Dairy and eggs', 'USDA', [81, 10.4, 4.8, 2.3, 0, 4.0, 1.2, 308], [['½ cup', 113]], ''],
+  ['cott4', 'Cottage cheese 4%', 'Dairy and eggs', 'USDA', [98, 11.1, 3.4, 4.3, 0, 2.7, 1.7, 315], [['½ cup', 113]], ''],
+  ['parm', 'Parmesan', 'Dairy and eggs', 'USDA', [392, 35.8, 3.2, 25.0, 0, 0.1, 14.8, 1175], [['1 tbsp grated', 5], ['1 oz', 28.4]], 'cheese'],
+  ['cheddar', 'Cheddar', 'Dairy and eggs', 'USDA', [403, 22.9, 3.4, 33.3, 0, 0.5, 18.9, 653], [['1 slice', 28]], 'cheese'],
+  ['kefir', 'Kefir, plain', 'Dairy and eggs', 'USDA', [43, 3.8, 4.8, 1.0, 0, 4.6, 0.7, 40], [['1 cup', 243]], ''],
+  ['beef80', 'Ground beef 80/20, raw', 'Meat and fish', 'USDA', [254, 17.2, 0, 20.0, 0, 0, 7.6, 66], [['4 oz', 113]], 'mince carne molida'],
+  ['beef85', 'Ground beef 85/15, raw', 'Meat and fish', 'USDA', [215, 18.6, 0, 15.0, 0, 0, 5.7, 66], [['4 oz', 113]], 'mince carne molida'],
+  ['beef90', 'Ground beef 90/10, raw', 'Meat and fish', 'USDA', [176, 20.0, 0, 10.0, 0, 0, 3.9, 66], [['4 oz', 113]], 'mince carne molida'],
+  ['beef93', 'Ground beef 93/7, raw', 'Meat and fish', 'USDA', [152, 20.9, 0, 7.0, 0, 0, 2.9, 66], [['4 oz', 113]], 'mince carne molida'],
+  ['sirloin', 'Top sirloin, lean, raw', 'Meat and fish', 'USDA, from cooked values', [137, 22.9, 0, 4.4, 0, 0, 1.7, 48], [['4 oz', 113]], 'steak kebab beef cubes'],
+  ['liver', 'Beef liver, raw', 'Meat and fish', 'USDA', [135, 20.4, 3.9, 3.6, 0, 0, 1.2, 69], [['4 oz', 113]], ''],
+  ['chicken', 'Chicken breast, raw', 'Meat and fish', 'USDA', [120, 22.5, 0, 2.6, 0, 0, 0.6, 45], [['4 oz', 113]], 'pollo'],
+  ['salmonw', 'Wild salmon (sockeye), raw', 'Meat and fish', 'USDA', [131, 22.2, 0, 4.7, 0, 0, 0.8, 78], [['4 oz', 113]], 'fish'],
+  ['salmonf', 'Farmed salmon, raw', 'Meat and fish', 'USDA', [208, 20.4, 0, 13.4, 0, 0, 3.0, 59], [['4 oz', 113]], 'fish'],
+  ['sardines', 'Sardines in oil, drained', 'Meat and fish', 'USDA', [208, 24.6, 0, 11.4, 0, 0, 1.5, 307], [['1 can (92 g)', 92]], 'fish'],
+  ['gfpasta', 'Gluten free pasta, dry', 'Carbs', 'Barilla GF label', [357, 7.1, 78.6, 1.8, 3.6, 0.9, 0, 0], [['2 oz dry (56 g)', 56]], 'spaghetti penne'],
+  ['jasmine', 'Jasmine rice, cooked', 'Carbs', 'USDA', [130, 2.7, 28.2, 0.3, 0.4, 0.1, 0.1, 1], [['1 cup cooked', 158], ['½ cup cooked', 79]], 'white rice arroz'],
+  ['jasminedry', 'Jasmine rice, dry', 'Carbs', 'USDA', [365, 7.1, 80.0, 0.7, 1.3, 0.1, 0.2, 5], [['¼ cup dry', 46]], 'white rice arroz'],
+  ['jsp', 'Japanese sweet potato, steamed', 'Carbs', 'Japan food tables (MEXT)', [131, 1.2, 31.9, 0.2, 3.8, null, null, 11], [['1 medium (200 g)', 200]], 'purple satsumaimo murasaki camote'],
+  ['jspb', 'Japanese sweet potato, baked', 'Carbs', 'Japan food tables (MEXT)', [151, 1.4, 39.0, 0.2, 3.5, null, null, 13], [['1 medium (180 g)', 180]], 'purple satsumaimo camote'],
+  ['sp', 'Sweet potato, orange, baked', 'Carbs', 'USDA', [90, 2.0, 20.7, 0.1, 3.3, 6.5, 0.1, 36], [['1 medium', 114]], 'camote batata'],
+  ['potato', 'Potato, baked with skin', 'Carbs', 'USDA', [93, 2.5, 21.1, 0.1, 2.2, 1.2, 0, 10], [['1 medium', 173]], 'papa'],
+  ['arepa', 'Arepa, white corn', 'Carbs', 'USDA', [219, 5.5, 37.1, 5.4, 2.6, 0.9, 2.9, 270], [['1 arepa (98 g)', 98]], 'corn'],
+  ['arepaflour', 'Arepa flour (P.A.N.), dry', 'Carbs', 'P.A.N. label', [370, 7.4, 77.8, 1.9, 3.7, 0, 0, 0], [['¼ cup', 27]], 'harina masarepa corn'],
+  ['maduro', 'Sweet plantain (maduro), baked', 'Carbs', 'USDA', [155, 1.5, 41.4, 0.2, 2.2, 21.3, 0, 2], [['1 cup', 139]], 'platano'],
+  ['plantaing', 'Green plantain, boiled', 'Carbs', 'USDA', [121, 1.1, 29.1, 0.1, 2.6, 2.2, 0.1, 2], [['1 cup', 137]], 'platano verde'],
+  ['oats', 'Oats, dry', 'Carbs', 'USDA', [379, 13.2, 67.7, 6.5, 10.1, 1.0, 1.1, 6], [['½ cup', 40]], 'oatmeal avena'],
+  ['blackbeans', 'Black beans, cooked', 'Carbs', 'USDA', [132, 8.9, 23.7, 0.5, 8.7, 0.3, 0.1, 1], [['½ cup', 86]], 'frijoles'],
+  ['blueberries', 'Blueberries', 'Fruit', 'USDA', [57, 0.7, 14.5, 0.3, 2.4, 10.0, 0, 1], [['1 cup', 148], ['½ cup', 74]], 'berries'],
+  ['raspberries', 'Raspberries', 'Fruit', 'USDA', [52, 1.2, 11.9, 0.7, 6.5, 4.4, 0, 1], [['1 cup', 123], ['½ cup', 62]], 'berries'],
+  ['strawberries', 'Strawberries', 'Fruit', 'USDA', [32, 0.7, 7.7, 0.3, 2.0, 4.9, 0, 1], [['1 cup halves', 152]], 'berries fresas'],
+  ['blackberries', 'Blackberries', 'Fruit', 'USDA', [43, 1.4, 9.6, 0.5, 5.3, 4.9, 0, 1], [['1 cup', 144]], 'berries moras'],
+  ['apple', 'Apple', 'Fruit', 'USDA', [52, 0.3, 13.8, 0.2, 2.4, 10.4, 0, 1], [['1 medium', 182]], 'manzana'],
+  ['banana', 'Banana', 'Fruit', 'USDA', [89, 1.1, 22.8, 0.3, 2.6, 12.2, 0.1, 1], [['1 medium', 118]], ''],
+  ['mango', 'Mango', 'Fruit', 'USDA', [60, 0.8, 15.0, 0.4, 1.6, 13.7, 0.1, 1], [['1 cup', 165]], ''],
+  ['pineapple', 'Pineapple', 'Fruit', 'USDA', [50, 0.5, 13.1, 0.1, 1.4, 9.8, 0, 1], [['1 cup', 165]], 'pina'],
+  ['orange', 'Orange', 'Fruit', 'USDA', [47, 0.9, 11.8, 0.1, 2.4, 9.3, 0, 0], [['1 medium', 131]], ''],
+  ['kiwi', 'Kiwi', 'Fruit', 'USDA', [61, 1.1, 14.7, 0.5, 3.0, 9.0, 0, 3], [['1 fruit', 69]], ''],
+  ['redpepper', 'Red bell pepper', 'Vegetables', 'USDA', [26, 1.0, 6.0, 0.3, 2.1, 4.2, 0.1, 4], [['1 medium', 119], ['1 cup chopped', 149]], 'pimenton'],
+  ['cucumber', 'Cucumber', 'Vegetables', 'USDA', [15, 0.7, 3.6, 0.1, 0.5, 1.7, 0, 2], [['½ cucumber', 150]], 'pepino'],
+  ['tomato', 'Tomato', 'Vegetables', 'USDA', [18, 0.9, 3.9, 0.2, 1.2, 2.6, 0, 5], [['1 medium', 123]], 'tomate'],
+  ['spinach', 'Spinach', 'Vegetables', 'USDA', [23, 2.9, 3.6, 0.4, 2.2, 0.4, 0.1, 79], [['1 cup', 30]], ''],
+  ['broccoli', 'Broccoli', 'Vegetables', 'USDA', [34, 2.8, 6.6, 0.4, 2.6, 1.7, 0.1, 33], [['1 cup chopped', 91]], ''],
+  ['onion', 'Onion', 'Vegetables', 'USDA', [40, 1.1, 9.3, 0.1, 1.7, 4.2, 0, 4], [['½ medium', 55]], 'cebolla'],
+  ['romaine', 'Romaine lettuce', 'Vegetables', 'USDA', [17, 1.2, 3.3, 0.3, 2.1, 1.2, 0, 8], [['1 cup shredded', 47]], 'salad'],
+  ['carrot', 'Carrot', 'Vegetables', 'USDA', [41, 0.9, 9.6, 0.2, 2.8, 4.7, 0, 69], [['1 medium', 61]], ''],
+  ['ghee', 'Ghee', 'Fats and extras', 'USDA (butter oil)', [876, 0.3, 0, 99.5, 0, 0, 61.9, 2], [['1 tsp', 4.3], ['1 tbsp', 12.8]], 'clarified butter'],
+  ['butter', 'Butter', 'Fats and extras', 'USDA', [717, 0.8, 0.1, 81.1, 0, 0.1, 51.4, 643], [['1 tsp', 4.7], ['1 tbsp', 14.2]], 'mantequilla'],
+  ['honey', 'Honey', 'Fats and extras', 'USDA', [304, 0.3, 82.4, 0, 0.2, 82.1, 0, 4], [['1 tsp', 7], ['1 tbsp', 21]], 'miel'],
+  ['avocado', 'Avocado', 'Fats and extras', 'USDA', [167, 2.0, 8.6, 15.4, 6.8, 0.3, 2.1, 8], [['½ avocado', 68], ['¼ avocado', 34]], 'aguacate'],
+  ['almonds', 'Almonds', 'Fats and extras', 'USDA', [579, 21.1, 21.6, 49.9, 12.5, 4.3, 3.8, 1], [['1 oz (23 almonds)', 28.4]], 'nuts'],
+  ['pb', 'Peanut butter', 'Fats and extras', 'USDA', [598, 22.2, 22.3, 51.4, 5.0, 10.5, 10.3, 17], [['1 tbsp', 16]], ''],
+  ['chia', 'Chia seeds', 'Fats and extras', 'USDA', [486, 16.5, 42.1, 30.7, 34.4, null, 3.3, 16], [['1 tbsp', 12]], ''],
+  ['dchoc', 'Dark chocolate, 70 to 85%', 'Fats and extras', 'USDA', [598, 7.8, 45.9, 42.6, 10.9, 24.0, 24.5, 20], [['1 square (10 g)', 10], ['1 oz', 28.4]], ''],
+  ['espresso', 'Espresso', 'Drinks and treats', 'USDA', [9, 0.1, 1.7, 0.2, 0, 0, 0.1, 14], [['1 shot (30 ml)', 30], ['2 shots', 60]], 'coffee cafe'],
+  ['pbar', 'Protein bar', 'Drinks and treats', 'Estimate, check your label', [333, 33.3, 36.7, 11.7, null, null, null, null], [['1 bar (60 g)', 60]], ''],
+  ['pizza', 'Cheese pizza', 'Drinks and treats', 'USDA', [268, 10.4, 29.0, 12.3, 2.2, 3.6, 4.3, 447], [['1 slice', 107]], ''],
+  ['icecream', 'Vanilla ice cream', 'Drinks and treats', 'USDA', [207, 3.5, 23.6, 11.0, 0.7, 21.2, 6.8, 80], [['½ cup', 66], ['1 cup', 132]], 'helado'],
+];
+const NK = ['k', 'p', 'c', 'f', 'fib', 'sug', 'sat', 'na'];
+const mkFood = (id, n, cat, src, a, units, alias = '') => {
+  const f = { id, n, cat, src, units: [...units, ['grams', 1]], alias };
+  NK.forEach((key, i) => f[key] = a[i] ?? null);
+  return f;
+};
+const STAPLES = STAPLE_ROWS.map(r => mkFood('s:' + r[0], r[1], r[2], r[3], r[4], r[5], r[6]));
+
+/* meals are built from foods so every number comes from the database */
+const MEALS = [
+  { id: 'capp', n: 'Cappuccino with honey', slot: 'Breakfast', icon: 'bowl', items: [['s:espresso', 60], ['s:milk', 180], ['s:honey', 7]] },
+  { id: 'eggs', n: 'Eggs with mozzarella', slot: 'Breakfast', icon: 'egg', items: [['s:egg', 150], ['s:mozz', 30], ['s:ghee', 4.3]] },
+  { id: 'arepa', n: 'Arepa with eggs and cheese', slot: 'Breakfast', icon: 'egg', items: [['s:arepa', 98], ['s:egg', 100], ['s:campesino', 30], ['s:ghee', 4.3]] },
+  { id: 'pasta', n: 'Pasta with ground beef', slot: 'Lunch', icon: 'bowl', items: [['s:gfpasta', 70], ['s:beef90', 150], ['s:redpepper', 75], ['s:tomato', 60], ['s:ghee', 4.3]] },
+  { id: 'kebab', n: 'Rice with sirloin kebabs', slot: 'Lunch', icon: 'bowl', items: [['s:jasmine', 150], ['s:sirloin', 150], ['s:redpepper', 75], ['s:onion', 40], ['s:ghee', 4.3]] },
+  { id: 'mash', n: 'Purple sweet potato mash with beef', slot: 'Dinner', icon: 'bowl', items: [['s:jsp', 200], ['s:beef90', 150], ['s:mozz', 20], ['s:cream', 15], ['s:ghee', 4.3]] },
+  { id: 'steak', n: 'Steak, sweet potato and salad', slot: 'Dinner', icon: 'bowl', items: [['s:sirloin', 150], ['s:jsp', 150], ['s:cucumber', 100], ['s:tomato', 100], ['s:avocado', 50], ['s:ghee', 4.3]] },
+  { id: 'yogurt', n: 'Greek yogurt with berries', slot: 'Snack', icon: 'bowl', items: [['s:gyw', 200], ['s:blueberries', 50], ['s:raspberries', 40], ['s:honey', 7]] },
+  { id: 'cottage', n: 'Cottage cheese and apple', slot: 'Snack', icon: 'bowl', items: [['s:cott2', 150], ['s:apple', 182]] },
+  { id: 'eggapple', n: 'Two eggs and an apple', slot: 'Snack', icon: 'egg', items: [['s:egg', 100], ['s:apple', 182]] },
 ];
 
+/* ---------- habits & challenges ---------- */
 const HABITS = [
   { k: 'workout', t: 'Workout', icon: 'dumbbell' },
   { k: 'steps', t: 'Steps', icon: 'steps' },
-  { k: 'protein', t: 'Protein 125g', icon: 'egg' },
-  { k: 'core', t: 'Core · 10 min', icon: 'core' },
-  { k: 'stretch', t: 'Stretch · 10 min', icon: 'stretch' },
-  { k: 'water', t: 'Water 2.5 L', icon: 'drop' },
+  { k: 'protein', t: 'Protein', icon: 'egg' },
+  { k: 'core', t: 'Core', icon: 'core' },
+  { k: 'stretch', t: 'Stretch', icon: 'stretch' },
+  { k: 'water', t: 'Water', icon: 'drop' },
   { k: 'supps', t: 'Supplements', icon: 'pill' },
-  { k: 'sleep', t: 'Sleep 7.5h+', icon: 'moon' },
+  { k: 'sleep', t: 'Sleep', icon: 'moon' },
   { k: 'plan', t: 'Ate on plan', icon: 'leaf' },
 ];
+const LADDER = [
+  { len: 20, name: '20 Day Kickstart', short: 'Kickstart', why: 'Build the habit' },
+  { len: 75, name: '75 Day Transformation', short: 'Transform', why: 'See the change' },
+  { len: 90, name: '90 Day Sculpt', short: 'Sculpt', why: 'Lock it in' },
+];
+const ladderOf = len => LADDER.find(l => l.len === len) || { len, name: `${len} Day Challenge`, short: `${len} days`, why: '' };
 
 /* ---------- state ---------- */
 const KEY = 'sculpt.v1';
@@ -302,18 +459,151 @@ const pad = n => String(n).padStart(2, '0');
 const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const dateOf = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
 const addDays = (k, n) => { const d = dateOf(k); d.setDate(d.getDate() + n); return keyOf(d); };
+const diffDays = (a, b) => Math.round((dateOf(b) - dateOf(a)) / 864e5);
 const today = () => keyOf(new Date());
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
 function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } }
-let S = load() || { start: today(), days: {}, weights: [], measures: [], last: null };
+let S = load() || { days: {}, weights: [], measures: [], last: null };
+// first open of this version: Day 1 of the 20 Day Kickstart is today
+if (!S.ch) S.ch = { len: 20, start: today() };
+S.chLog ||= []; S.myFoods ||= []; S.recent ||= [];
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
-function day(k) { return S.days[k] || (S.days[k] = { h: {}, steps: 0, water: 0, food: [], sets: {}, workout: null, session: null, done: false }); }
+function day(k) { return S.days[k] || (S.days[k] = { h: {}, steps: 0, stepsH: 0, water: 0, food: [], sets: {}, workout: null, session: null, done: false }); }
 
-const ui = { tab: 'today', sel: today(), exp: null, trainSeg: 'sessions', eatGroup: 'Breakfast', overlay: null, pose: 'Front', cmp: null };
+const ui = { tab: 'today', sel: today(), exp: null, trainSeg: 'sessions', mealSlot: 'Breakfast', overlay: null, pose: 'Front', cmp: null, chPick: null };
 
-/* ---------- photos (IndexedDB, too big for localStorage) ---------- */
+/* ---------- derived ---------- */
+const sessionById = id => id === 'R' ? REST : SESSIONS.find(s => s.id === id);
+const nextSession = () => ROTATION[(ROTATION.indexOf(S.last) + 1) % ROTATION.length];
+function plannedSession(k) { const d = day(k); return d.workout || d.session || nextSession(); }
+const sum = (arr, f) => arr.reduce((a, x) => a + (x[f] || 0), 0);
+const stepsOf = d => (d?.stepsH || 0) + (d?.steps || 0);
+
+function habitDone(k, h) {
+  const d = S.days[k]; if (!d) return false;
+  if (h === 'workout') return !!d.workout;
+  if (d.h[h]) return true;
+  if (h === 'steps') return stepsOf(d) >= TARGET.steps;
+  if (h === 'protein') return sum(d.food, 'p') >= TARGET.p;
+  if (h === 'water') return d.water >= TARGET.water;
+  return false;
+}
+const pct = k => HABITS.filter(h => habitDone(k, h.k)).length / HABITS.length;
+function streak() {
+  let k = today(), n = 0;
+  if (!S.days[k]?.done) k = addDays(k, -1);
+  while (S.days[k]?.done) { n++; k = addDays(k, -1); }
+  return n;
+}
+function lastBest(name, beforeKey) {
+  const id = slug(name);
+  const keys = Object.keys(S.days).filter(k => k < beforeKey).sort().reverse();
+  for (const k of keys) {
+    const sets = S.days[k].sets?.[id];
+    if (sets && sets.some(s => s.d && (s.w || s.r))) return sets.filter(s => s.d).map(s => `${s.w ?? '?'} lb × ${s.r ?? '?'}`).join(', ');
+  }
+  return null;
+}
+function weekAvg(endKey) {
+  const from = addDays(endKey, -6);
+  const w = S.weights.filter(x => x.d >= from && x.d <= endKey);
+  return w.length ? w.reduce((a, x) => a + x.lb, 0) / w.length : null;
+}
+/* challenge */
+const chDay = k => diffDays(S.ch.start, k) + 1;
+function chStats() {
+  const len = S.ch.len, t = today(), cur = Math.min(chDay(t), len + 1);
+  let done = 0, miss = 0;
+  for (let i = 0; i < len; i++) {
+    const k = addDays(S.ch.start, i);
+    if (S.days[k]?.done) done++;
+    else if (k < t) miss++;
+  }
+  return { len, cur, done, miss, left: Math.max(0, len - Math.max(0, cur - 1)), finished: chDay(t) > len };
+}
+
+/* ---------- food helpers ---------- */
+let USDA = null, usdaLoading = null;
+function loadUSDA() {
+  if (USDA || usdaLoading) return usdaLoading;
+  usdaLoading = fetch('usda.json').then(r => r.json()).then(rows => { USDA = rows; }).catch(() => { usdaLoading = null; });
+  return usdaLoading;
+}
+function usdaFood(i) {
+  const r = USDA[i];
+  const units = (r[9] || '').split('|').filter(Boolean).map(s => { const j = s.lastIndexOf(':'); return [s.slice(0, j), +s.slice(j + 1)]; }).filter(u => u[1] > 0);
+  return mkFood('u:' + i, r[0], 'USDA', 'USDA', r.slice(1, 9), units);
+}
+function foodById(id) {
+  if (id.startsWith('s:')) return STAPLES.find(f => f.id === id);
+  if (id.startsWith('m:')) { const f = S.myFoods.find(f => f.id === id); return f && { ...f, units: [...f.units.filter(u => u[0] !== 'grams'), ['grams', 1]] }; }
+  if (id.startsWith('u:') && USDA) return usdaFood(+id.slice(2));
+  return null;
+}
+function scale(f, g) {
+  const o = {}; NK.forEach(k => o[k] = f[k] == null ? null : f[k] * g / 100); return o;
+}
+function addN(list) {
+  const o = {}; NK.forEach(k => { o[k] = 0; o['has_' + k] = list.length > 0 && list.every(x => x[k] != null); list.forEach(x => o[k] += x[k] || 0); }); return o;
+}
+const r0 = v => Math.round(v || 0), r1 = v => Math.round((v || 0) * 10) / 10;
+const fmtG = v => { const x = r1(v); return (x % 1 ? x.toFixed(1) : x) + ' g'; };
+function factsHTML(n, serving, src) {
+  const row = (lbl, key, unit = 'g', sub = false) => !(n['has_' + key] ?? n[key] != null) && !n[key] ? '' :
+    `<div class="fr${sub ? ' sub' : ''}"><span>${sub ? lbl : `<b>${lbl}</b>`}</span><span class="num">${unit === 'mg' ? r0(n[key]) + ' mg' : fmtG(n[key])}</span></div>`;
+  return `<div class="facts" id="facts">
+    <h4>Nutrition Facts</h4><div class="serv">${esc(serving)}</div>
+    <div class="cal"><span>Calories</span><b class="num">${r0(n.k)}</b></div>
+    ${row('Total fat', 'f')}${row('Saturated fat', 'sat', 'g', true)}${row('Sodium', 'na', 'mg')}
+    ${row('Total carbs', 'c')}${row('Fiber', 'fib', 'g', true)}${row('Total sugars', 'sug', 'g', true)}
+    ${row('Protein', 'p')}
+    ${src ? `<div class="src">Source: ${esc(src)}</div>` : ''}</div>`;
+}
+const macroChips = n => `<div class="mchips"><span class="mchip k">${r0(n.k)} kcal</span><span class="mchip">P ${r0(n.p)} g</span><span class="mchip">C ${r0(n.c)} g</span><span class="mchip">F ${r0(n.f)} g</span></div>`;
+function mealTotals(items) {
+  return addN(items.map(([id, g]) => { const f = foodById(id); return f ? scale(f, g) : {}; }));
+}
+function logEntry(name, n, items, g) {
+  const e = { n: name, k: r0(n.k), p: r1(n.p), c: r1(n.c), f: r1(n.f), fib: r1(n.fib), sug: r1(n.sug), sat: r1(n.sat), na: r0(n.na) };
+  if (items) e.items = items; if (g) e.g = g;
+  day(ui.sel).food.push(e);
+}
+function pushRecent(id) { S.recent = [id, ...S.recent.filter(x => x !== id)].slice(0, 12); }
+
+function searchFoods(q) {
+  const t = q.toLowerCase().split(/[\s,]+/).filter(Boolean);
+  const hit = s => t.every(w => s.includes(w));
+  const mine = [...S.myFoods.map(f => foodById(f.id)), ...STAPLES].filter(f => hit((f.n + ' ' + (f.alias || '')).toLowerCase()));
+  const us = [];
+  if (USDA) {
+    for (let i = 0; i < USDA.length; i++) {
+      const n = USDA[i][0].toLowerCase();
+      if (hit(n)) us.push([i, (n.startsWith(t[0]) ? 0 : 1000) + n.length]);
+    }
+    us.sort((a, b) => a[1] - b[1]);
+  }
+  return { mine: mine.slice(0, 20), usda: us.slice(0, 40).map(x => usdaFood(x[0])) };
+}
+async function searchOnline(q) {
+  const res = await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?api_key=DEMO_KEY&query=${encodeURIComponent(q)}&dataType=Branded&pageSize=25`);
+  if (res.status === 429) throw new Error('limit');
+  if (!res.ok) throw new Error('down');
+  const data = await res.json();
+  const ids = { 1008: 'k', 1003: 'p', 1005: 'c', 1004: 'f', 1079: 'fib', 2000: 'sug', 1258: 'sat', 1093: 'na' };
+  return (data.foods || []).map(x => {
+    const a = {}; (x.foodNutrients || []).forEach(n => { if (ids[n.nutrientId]) a[ids[n.nutrientId]] = n.value; });
+    if (a.k == null) return null;
+    const brand = x.brandName || x.brandOwner || '';
+    const sv = x.servingSize && /^(g|grm|ml|mlt)$/i.test(x.servingSizeUnit || '') ? [[`1 serving (${r0(x.servingSize)} ${/ml|mlt/i.test(x.servingSizeUnit) ? 'ml' : 'g'})`, x.servingSize]] : [];
+    const f = mkFood('o:' + x.fdcId, titleCase(x.description) + (brand ? `, ${titleCase(brand)}` : ''), 'Brand', 'USDA branded foods (package label)', NK.map(k => a[k] ?? null), sv);
+    return f;
+  }).filter(Boolean);
+}
+const titleCase = s => String(s).toLowerCase().replace(/\b[a-z]/g, c => c.toUpperCase());
+
+/* ---------- photos (IndexedDB) ---------- */
 const PH = (() => {
   let dbp;
   const open = () => dbp || (dbp = new Promise((res, rej) => {
@@ -348,7 +638,7 @@ function shrink(file) {
 }
 async function addPhotos(files) {
   if (!files.length) return;
-  toast('Saving…');
+  toast('Saving');
   try { navigator.storage?.persist?.(); } catch {}
   let ok = 0;
   for (const f of files) {
@@ -357,116 +647,80 @@ async function addPhotos(files) {
       const p = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), d: today(), pose: ui.pose, blob };
       await PH.put(p);
       URLS[p.id] = URL.createObjectURL(blob); PHOTOS.push(p); ok++;
-    } catch { toast('Couldn\'t save that photo. Try a JPG or PNG.'); }
+    } catch { toast('That photo could not be saved. Try a JPG or PNG.'); }
   }
   if (ok) toast(ok > 1 ? `${ok} photos saved` : 'Photo saved');
   render();
 }
 
-/* ---------- derived ---------- */
-const sessionById = id => id === 'R' ? REST : SESSIONS.find(s => s.id === id);
-function nextSession() {
-  const i = ROTATION.indexOf(S.last);
-  return ROTATION[(i + 1) % ROTATION.length];
-}
-function plannedSession(k) { const d = day(k); return d.workout || d.session || nextSession(); }
-const sum = (arr, f) => arr.reduce((a, x) => a + (x[f] || 0), 0);
-
-function habitDone(k, h) {
-  const d = S.days[k]; if (!d) return false;
-  if (h === 'workout') return !!d.workout;
-  if (d.h[h]) return true;
-  if (h === 'steps') return d.steps >= TARGET.steps;
-  if (h === 'protein') return sum(d.food, 'p') >= TARGET.p;
-  if (h === 'water') return d.water >= TARGET.water;
-  return false;
-}
-const pct = k => HABITS.filter(h => habitDone(k, h.k)).length / HABITS.length;
-function streak() {
-  let k = today(), n = 0;
-  if (!S.days[k]?.done) k = addDays(k, -1);
-  while (S.days[k]?.done) { n++; k = addDays(k, -1); }
-  return n;
-}
-function lastBest(name, beforeKey) {
-  const id = slug(name);
-  const keys = Object.keys(S.days).filter(k => k < beforeKey).sort().reverse();
-  for (const k of keys) {
-    const sets = S.days[k].sets?.[id];
-    if (sets && sets.some(s => s.d && (s.w || s.r))) {
-      const done = sets.filter(s => s.d);
-      return done.map(s => `${s.w || '–'}×${s.r || '–'}`).join(', ');
-    }
-  }
-  return null;
-}
-function weekAvg(endKey) {
-  const from = addDays(endKey, -6);
-  const w = S.weights.filter(x => x.d >= from && x.d <= endKey);
-  return w.length ? w.reduce((a, x) => a + x.lb, 0) / w.length : null;
-}
-
 /* ---------- UI helpers ---------- */
 function ring(p, size = 38, stroke = 3.5, color = 'var(--glow)') {
   const r = (size - stroke) / 2, c = 2 * Math.PI * r;
-  return `<svg width="${size}" height="${size}"><circle cx="${size/2}" cy="${size/2}" r="${r}" stroke="var(--track)" stroke-width="${stroke}" fill="none"/><circle cx="${size/2}" cy="${size/2}" r="${r}" stroke="${color}" stroke-width="${stroke}" fill="none" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - Math.min(1, p))}"/></svg>`;
+  return `<svg width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" stroke="var(--track)" stroke-width="${stroke}" fill="none"/><circle cx="${size / 2}" cy="${size / 2}" r="${r}" stroke="${color}" stroke-width="${stroke}" fill="none" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - Math.min(1, p))}"/></svg>`;
 }
-const chk = (on, act, extra = '') => `<button class="check ${on ? 'on' : ''}" data-act="${act}" ${extra} aria-label="toggle">${I(ICON.check, 22, 2.6)}</button>`;
-function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 1800); }
-const fmt = n => n.toLocaleString('en-US');
+const chk = (on, act, extra = '') => `<button class="check ${on ? 'on' : ''}" data-act="${act}" ${extra} aria-label="Mark done">${I(ICON.check, 22, 2.6)}</button>`;
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2200); }
+const fmt = n => Math.round(n).toLocaleString('en-US');
 const fmtDate = k => dateOf(k).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+const fmtShort = k => dateOf(k).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const backBar = (right = '') => `<div class="top"><button class="back" data-act="close" aria-label="Back">${I(ICON.back, 20)}</button>${right}</div>`;
+const label = (t, icon) => `<div class="label">${icon ? I(ICON[icon], 14, 2) : ''}${t}</div>`;
 
 /* ---------- TODAY ---------- */
 function renderToday() {
   const k = ui.sel, d = day(k), isToday = k === today(), isFuture = k > today();
-  const dayNum = Math.max(1, Math.round((dateOf(k) - dateOf(S.start)) / 864e5) + 1);
-  const p = pct(k);
-  // week strip (Mon–Sun containing selected)
+  const p = pct(k), cd = chDay(k), L = ladderOf(S.ch.len);
   const sd = dateOf(k), dow = (sd.getDay() + 6) % 7, mon = addDays(k, -dow);
   let week = '';
   for (let i = 0; i < 7; i++) {
-    const kk = addDays(mon, i), dd = dateOf(kk);
-    week += `<button class="wd ${S.days[kk]?.done ? 'done' : ''} ${kk === k ? 'sel' : ''} ${kk > today() ? 'fut' : ''}" data-act="sel" data-k="${kk}"><span>${'MTWTFSS'[i]}</span><b>${dd.getDate()}</b></button>`;
+    const kk = addDays(mon, i);
+    week += `<button class="wd ${S.days[kk]?.done ? 'done' : ''} ${kk === k ? 'sel' : ''} ${kk > today() ? 'fut' : ''}" data-act="sel" data-k="${kk}"><span>${'MTWTFSS'[i]}</span><b>${dateOf(kk).getDate()}</b></button>`;
   }
+  let hero;
+  if (cd < 1) hero = `<div class="lbl">Before your challenge</div><div class="big rounded">${sd.getDate()}</div><div class="sub">${fmtDate(k)}</div>`;
+  else if (cd > S.ch.len) hero = `<div class="lbl">${L.name}</div><div class="big rounded">${I(ICON.trophy, 54, 2)}</div><div class="sub">Challenge complete. Tap to start the next one.</div>`;
+  else hero = `<div class="lbl">${L.name}</div><div class="big rounded num">${cd}</div><div class="sub">Day ${cd} of ${S.ch.len}${isToday ? '' : `, ${fmtDate(k)}`}</div><div class="bar hbar"><i style="width:${cd / S.ch.len * 100}%;background:var(--glow)"></i></div>`;
+
   const ses = sessionById(plannedSession(k));
-  const food = d.food, prot = sum(food, 'p');
-
+  const prot = sum(d.food, 'p'), steps = stepsOf(d);
   const sub = {
-    workout: d.workout ? `Done · ${ses.name}` : ses.name,
-    steps: `${fmt(d.steps)} / ${fmt(TARGET.steps)}${d.steps >= TARGET.stepsHard ? ' · challenge hit 🔥' : ''}`,
-    protein: `${prot}g / ${TARGET.p}g · from your food log`,
-    core: 'Vacuums, dead bugs, planks',
-    stretch: 'Hips, adductors, back',
-    water: `${(d.water / 1000).toFixed(2).replace(/0$/, '')} L / 2.5 L`,
-    supps: 'Creatine 5g · Magnesium (night)',
-    sleep: 'Lights out by 11',
-    plan: 'No unplanned treats today',
+    workout: d.workout ? `Done: ${ses.name}` : ses.name,
+    steps: `${fmt(steps)} of ${fmt(TARGET.steps)}${steps >= TARGET.stepsHard ? ', challenge day hit' : ''}`,
+    protein: `${r0(prot)} g of ${TARGET.p} g`,
+    core: '10 minutes',
+    stretch: '10 minutes',
+    water: `${r1(d.water / 1000)} L of 2.5 L`,
+    supps: 'Creatine and magnesium',
+    sleep: '7.5 hours or more',
+    plan: 'No unplanned treats',
   };
-
-  const habits = HABITS.map((h, i) => {
+  const habits = HABITS.map(h => {
     const on = habitDone(k, h.k), open = ui.exp === h.k;
     let drop = '';
     if (open) {
       if (h.k === 'workout') {
-        drop = `<div class="row" style="margin-bottom:10px">${[...ROTATION, 'R'].map(id => `<button class="chip ${plannedSession(k) === id ? 'on' : ''}" data-act="pick" data-id="${id}">${id === 'R' ? 'Rest' : id}</button>`).join('')}</div>
+        drop = `<div class="row">${[...ROTATION, 'R'].map(id => `<button class="chip ${plannedSession(k) === id ? 'on' : ''}" data-act="pick" data-id="${id}">${id === 'R' ? 'Rest' : id}</button>`).join('')}</div>
           <div class="muted">${esc(ses.focus)}</div>
-          <button class="btn small" data-act="open-session" data-id="${ses.id}">Open session</button>`;
+          <button class="btn sm" data-act="open-session" data-id="${ses.id}">Open session</button>`;
       } else if (h.k === 'steps') {
-        drop = `<div class="row"><input class="field" type="number" inputmode="numeric" placeholder="Steps today" value="${d.steps || ''}" data-in="steps"><button class="chip" data-act="steps+" data-n="1000">+1k</button><button class="chip" data-act="steps+" data-n="2500">+2.5k</button></div>
-          <div class="bar"><i style="width:${Math.min(100, d.steps / TARGET.stepsHard * 100)}%"></i></div>
-          <div class="muted" style="margin-top:6px">Minimum 10k · target 12k · challenge day 15k</div>`;
+        drop = `<div class="steps-split"><div><small>Apple Health</small><b class="num">${fmt(d.stepsH || 0)}</b></div><div><small>Added by you</small><b class="num">${fmt(d.steps || 0)}</b></div></div>
+          <div class="bar"><i style="width:${Math.min(100, steps / TARGET.stepsHard * 100)}%"></i></div>
+          <div class="row"><a class="chip dark" href="shortcuts://run-shortcut?name=Sculpt%20Steps" data-act="health-run">${I(ICON.heart, 16, 2)}Get from Health</a><button class="chip" data-act="paste-steps">${I(ICON.clip, 16, 2)}Paste steps</button></div>
+          <div class="row"><button class="chip" data-act="steps+" data-n="1000">+1,000</button><button class="chip" data-act="steps+" data-n="2500">+2,500</button><button class="chip" data-act="steps+" data-n="5000">+5,000</button></div>
+          <div class="row"><input class="field" id="steps-extra" type="number" inputmode="numeric" placeholder="Steps without your phone" value="${d.steps || ''}" data-in="steps"></div>
+          <div class="row" style="justify-content:space-between"><span class="muted">Goal 12,000. Challenge days 15,000.</span><button class="linkbtn" data-act="open-health">Set up Health</button></div>`;
       } else if (h.k === 'water') {
-        drop = `<div class="row"><button class="chip" data-act="water" data-n="-250">− 250ml</button><button class="chip" data-act="water" data-n="250">+ 250ml</button><button class="chip" data-act="water" data-n="500">+ 500ml</button></div>
+        drop = `<div class="row"><button class="chip" data-act="water" data-n="-250">Remove 250 ml</button><button class="chip" data-act="water" data-n="250">Add 250 ml</button><button class="chip" data-act="water" data-n="500">Add 500 ml</button></div>
           <div class="bar"><i style="width:${Math.min(100, d.water / TARGET.water * 100)}%;background:var(--water)"></i></div>`;
       } else if (h.k === 'core' || h.k === 'stretch') {
-        drop = `<button class="btn small" data-act="open-routine" data-id="${h.k}">Open ${h.k} routine</button>`;
+        drop = `<button class="btn sm" data-act="open-routine" data-id="${h.k}">Open ${h.k} routine</button>`;
       } else if (h.k === 'protein') {
         drop = `<div class="bar"><i style="width:${Math.min(100, prot / TARGET.p * 100)}%"></i></div><button class="btn sec" data-act="tab" data-id="eat">Log food</button>`;
       } else if (h.k === 'supps') {
-        drop = `<div class="prose"><ul><li><b>Creatine monohydrate</b> 3–5g, any time</li><li><b>Magnesium glycinate</b> 200–300mg before bed</li><li><b>Omega-3</b> only on weeks you don't eat fatty fish</li></ul></div>`;
+        drop = SUPPS.slice(0, 3).map(s => `<div class="row" style="flex-wrap:nowrap"><span class="ico">${I(ICON.pill, 18)}</span><div><div style="font-weight:700;font-size:14px">${s.n}</div><div class="st">${s.dose}, ${s.when}</div></div></div>`).join('');
       }
     }
-    return `<div class="card" style="animation-delay:${i * 30}ms">
+    return `<div class="card">
       <div class="habit" data-act="exp" data-k="${h.k}">
         <div class="slab">${I(ICON[h.icon])}</div>
         <div class="hb"><div class="tx"><div class="tt">${h.t}</div><div class="st">${esc(sub[h.k])}</div></div>${chk(on, 'toggle', `data-k="${h.k}"`)}</div>
@@ -477,13 +731,13 @@ function renderToday() {
       <div class="pill">${I(ICON.flame, 16, 2.2)} ${streak()} day streak</div>
       <div class="ring">${ring(p)}<span>${Math.round(p * 100)}%</span></div>
     </div>
-    <div class="hero"><div class="lbl">Day</div><div class="num rounded">${dayNum}</div><div class="sub">${isToday ? 'Today' : fmtDate(k)}</div></div>
+    <button class="hero" data-act="tab" data-id="progress">${hero}</button>
     <div class="week">${week}</div>
     <div class="sheet">
-      ${isFuture ? `<div style="text-align:center;padding:40px 0">${I(ICON.today, 40)}<div class="tt" style="font-size:20px;margin-top:10px">Not here yet</div><div class="muted">Focus on today.</div><button class="btn" data-act="sel" data-k="${today()}">Go to Today</button></div>` : `
-      <div class="label">Today's habits</div>
+      ${isFuture ? `<div style="text-align:center;padding:40px 0">${I(ICON.calendar, 40)}<div class="tt" style="font-size:20px;margin-top:10px">Not here yet</div><div class="muted">Focus on today.</div><button class="btn" style="margin-top:18px" data-act="sel" data-k="${today()}">Go to today</button></div>` : `
+      ${label("Today's habits")}
       <div class="stack">${habits}</div>
-      <button class="btn ${d.done ? 'done' : ''}" data-act="complete">${d.done ? 'Day complete ✓' : 'Complete Day'}</button>`}
+      <button class="btn ${d.done ? 'done' : ''}" style="margin-top:18px" data-act="complete">${d.done ? 'Day complete' : 'Complete day'}</button>`}
     </div>`;
 }
 
@@ -492,30 +746,54 @@ function renderTrain() {
   const seg = ui.trainSeg;
   let body = '';
   if (seg === 'sessions') {
-    const nxt = nextSession();
-    body = `<div class="label">Your rotation</div>
-      <div class="card pad prose"><p>No fixed days — just do the <b>next session</b> in order whenever you train. Aim for <b>5 lifting sessions + 1 incline walk</b> per week and take a rest day when your body asks for it.</p><p style="margin:0">Progression: when you hit the top of the rep range on every set, add weight next time. Leave 1–2 reps in the tank (RDLs: 2–3).</p></div>
-      <div class="label">Sessions</div><div class="stack">
+    const nxt = sessionById(nextSession());
+    body = `<div class="g3" style="margin-top:16px">
+        <div class="tile">${'<span class="ico">' + I(ICON.glute, 20) + '</span>'}<b>3×</b><small>Glutes a week</small></div>
+        <div class="tile"><span class="ico">${I(ICON.back2, 20)}</span><b>2×</b><small>Back a week</small></div>
+        <div class="tile"><span class="ico">${I(ICON.core, 20)}</span><b>Daily</b><small>Core and stretch</small></div>
+      </div>
+      ${label('Up next', 'sparkle')}
+      <div class="card ink pad" style="display:flex;flex-direction:column;gap:12px">
+        <div class="row" style="flex-wrap:nowrap"><span class="ico" style="background:rgba(255,255,255,.12);color:#fff">${I(ICON[nxt.icon], 22)}</span><div><div class="tt" style="font-size:18px">${nxt.name}</div><div style="font-size:13px;opacity:.75">${esc(nxt.focus)}</div></div></div>
+        <div class="row"><span class="tag" style="background:rgba(255,255,255,.12);color:#fff">Session ${nxt.id}</span><span class="tag" style="background:rgba(255,255,255,.12);color:#fff">${nxt.ex.length} exercises</span></div>
+        <button class="btn light sm" data-act="open-session" data-id="${nxt.id}">Start session</button>
+      </div>
+      <p class="muted" style="margin:10px 4px 0">No fixed days. Whenever you train, do the next session in order.</p>
+      ${label('All sessions')}
+      <div class="stack">
       ${[...SESSIONS, REST].map(s => `<div class="card"><button class="habit" data-act="open-session" data-id="${s.id}">
-        <div class="slab ${s.id === nxt ? '' : 'soft'}">${I(ICON[s.icon])}</div>
-        <div class="hb"><div class="tx"><div class="tt">${s.id === 'R' ? '' : s.id + ' · '}${s.name}</div><div class="st">${esc(s.focus)}</div>${s.id === nxt ? '<div style="margin-top:6px"><span class="tag">Up next</span></div>' : ''}</div></div>
-      </button></div>`).join('')}</div>`;
+        <div class="slab ${s.id === nxt.id ? '' : 'soft'}">${I(ICON[s.icon])}</div>
+        <div class="hb"><div class="tx"><div class="tt">${s.name}</div><div class="st">${esc(s.focus)}</div></div>${s.id === 'R' ? '' : `<span class="tag n">${s.id}</span>`}</div>
+      </button></div>`).join('')}</div>
+      ${label('How to progress', 'chart')}
+      <div class="stack">
+        <div class="bubble"><span class="ico g">${I(ICON.plus, 20)}</span><div class="tx"><div class="tt">Add weight</div><div class="st">When you hit the top of the rep range on every set, go heavier next time.</div></div></div>
+        <div class="bubble"><span class="ico">${I(ICON.bolt, 20)}</span><div class="tx"><div class="tt">Leave 1–2 reps</div><div class="st">End each set with 1 to 2 reps left in the tank. On RDLs leave 2 to 3.</div></div></div>
+      </div>`;
   } else if (seg === 'glutes') {
-    body = `<div class="label">Glute anatomy</div><div class="stack">
-      <div class="card pad prose"><h4 style="margin-top:0">Gluteus maximus <span class="tag">Size & lift</span></h4><p>The biggest muscle — creates roundness and projection. Its job is <b>hip extension</b>.</p><ul><li><b>Lower fibers</b> (the under-butt "lift"): RDLs, B-stance RDLs, deep hip thrusts, step-ups.</li><li><b>Upper fibers</b> (fullness up top): kickbacks, hip thrusts with a hard lockout, abduction.</li></ul><p class="muted" style="margin:0">Sessions A & E · ~10–12 hard sets/week</p></div>
-      <div class="card pad prose"><h4 style="margin-top:0">Gluteus medius <span class="tag">Shelf & hip dips</span></h4><p>Upper-side of the hip. Builds the "shelf" look and fills out hip dips; also stabilizes your knees. Its job is <b>abduction</b> (moving the leg out).</p><ul><li>Abduction machine, standing cable abduction, banded abduction.</li></ul><p class="muted" style="margin:0">Sessions C & E · ~8–10 sets/week</p></div>
-      <div class="card pad prose"><h4 style="margin-top:0">Gluteus minimus <span class="tag">Deep support</span></h4><p>Sits under the medius. Trained best with <b>abduction while the hip is bent</b> — that's why you lean forward on the abduction machine.</p></div>
-      <div class="card pad prose"><h4 style="margin-top:0">Inner thighs (adductors) <span class="tag g">Lean & toned</span></h4><p>You can't burn fat from one spot. Inner thighs get lean from <b>overall fat loss</b> — that's the steps + calorie target. Training the adductors with moderate weight and higher reps gives the toned line once fat comes down.</p></div>
-      <div class="card pad prose"><h4 style="margin-top:0">Keeping legs lean, not bigger</h4><ul><li><b>Skipped on purpose:</b> heavy back squats, leg press, leg extensions, sissy squats — they mostly build the quads (front of thigh).</li><li>Glute-bias every leg movement: torso leaned forward, push through the heel.</li><li>Cardio = incline walking and steps. Avoid lots of heavy stairmaster or hill sprints, which build quads/calves.</li><li>Your thighs will look leaner as body fat drops — that's where most of the change comes from.</li></ul></div>
+    const g = (t, tag, tg, text, list, foot) => `<div class="card pad" style="display:flex;flex-direction:column;gap:10px">
+      <div class="row" style="justify-content:space-between"><div class="tt">${t}</div><span class="tag ${tg || ''}">${tag}</span></div>
+      <div class="st" style="margin:0">${text}</div>${list ? `<div class="row">${list.map(x => `<span class="chip" style="height:30px;font-size:12px">${x}</span>`).join('')}</div>` : ''}${foot ? `<div class="muted">${foot}</div>` : ''}</div>`;
+    body = `${label('Glute anatomy', 'glute')}<div class="stack">
+      ${g('Gluteus maximus', 'Size and lift', '', 'Your biggest glute muscle. It creates roundness and projection. Lower fibers give the lift under the glute, upper fibers give fullness at the top.', ['Hip thrust', 'RDL', 'Back extension', 'Step up', 'Kickback'], 'Sessions A and E')}
+      ${g('Gluteus medius', 'Shelf and hip dips', '', 'The upper side of your hip. It builds the shelf and fills in hip dips. It moves your leg out to the side.', ['Abduction machine', 'Cable abduction', 'Banded abduction'], 'Sessions C and E')}
+      ${g('Gluteus minimus', 'Deep support', '', 'Sits under the medius. It works best when you move your leg out with your hips bent, which is why you lean forward on the abduction machine.', ['Abduction, leaning forward'], '')}
+      ${g('Inner thighs', 'Lean and toned', 'g', 'You cannot burn fat from one spot. Your inner thighs get leaner as your overall body fat drops. Training them with moderate weight and higher reps shows the toned line.', ['Adduction machine', 'Cable adduction', 'Copenhagen plank'], '')}
+      </div>
+      ${label('Keeping legs lean')}
+      <div class="stack">
+        <div class="bubble"><span class="ico">${I(ICON.x, 20)}</span><div class="tx"><div class="tt">Left out on purpose</div><div class="st">Heavy back squats, leg press and leg extensions. They mostly build the front of your thighs.</div></div></div>
+        <div class="bubble"><span class="ico">${I(ICON.glute, 20)}</span><div class="tx"><div class="tt">Glute bias</div><div class="st">Lean your torso forward and push through your heel on every leg movement.</div></div></div>
+        <div class="bubble"><span class="ico">${I(ICON.walk, 20)}</span><div class="tx"><div class="tt">Walk for cardio</div><div class="st">Steps and incline walking. Lots of stairmaster or hill sprints build quads and calves.</div></div></div>
       </div>`;
   } else {
-    const list = (arr) => arr.map(x => `<div class="list-row"><div class="tx"><div class="tt" style="font-size:15px">${x.n}</div><div class="st">${x.c}</div></div><span class="tag">${x.r}</span></div>`).join('');
-    body = `<div class="label">Core · 10 min daily</div><div class="card">${list(CORE)}</div>
-      <div class="muted" style="margin:8px 4px 0">Skip heavy weighted side bends and weighted oblique twists — they can thicken the waist.</div>
-      <div class="label">Stretch · 10 min daily</div><div class="card">${list(STRETCH)}</div>`;
+    const list = arr => arr.map(x => `<div class="list-row"><div class="tx"><div class="tt" style="font-size:15px">${x.n}</div><div class="st">${x.c}</div></div><span class="tag">${x.r}</span></div>`).join('');
+    body = `${label('Core, 10 minutes daily', 'core')}<div class="card">${list(CORE)}</div>
+      <p class="muted" style="margin:8px 4px 0">Skip heavy weighted side bends and weighted twists. They can thicken the waist.</p>
+      ${label('Stretch, 10 minutes daily', 'stretch')}<div class="card">${list(STRETCH)}</div>`;
   }
-  return `<div class="h1">Train</div><p class="lead">Glutes 3×/week · back 2×/week · core & stretch daily</p>
-    <div class="seg">${[['sessions', 'Sessions'], ['glutes', 'Glute guide'], ['core', 'Core & stretch']].map(([id, l]) => `<button class="${seg === id ? 'on' : ''}" data-act="seg" data-id="${id}">${l}</button>`).join('')}</div>${body}`;
+  return `<div class="h1">Train</div><p class="lead">Glutes first, lean legs, defined back.</p>
+    <div class="seg">${[['sessions', 'Sessions'], ['glutes', 'Glute guide'], ['core', 'Routines']].map(([id, l]) => `<button class="${seg === id ? 'on' : ''}" data-act="seg" data-id="${id}">${l}</button>`).join('')}</div>${body}`;
 }
 
 function renderSession(id) {
@@ -524,119 +802,270 @@ function renderSession(id) {
     const eid = slug(e.n);
     if (s.cardio) {
       const on = !!d.sets[eid]?.[0]?.d;
-      return `<div class="card ex"><div class="hd"><div><div class="tt">${e.n}</div><div style="margin-top:6px"><span class="tag">${e.t}</span> <span class="tag g">${e.r}</span></div></div>${chk(on, 'set-done', `data-e="${eid}" data-i="0"`)}</div><div class="cue">${e.c}</div></div>`;
+      return `<div class="card ex"><div class="hd"><div><div class="tt">${e.n}</div><div class="row" style="margin-top:6px"><span class="tag">${e.t}</span><span class="tag g">${e.r}</span></div></div>${chk(on, 'set-done', `data-e="${eid}" data-i="0"`)}</div><div class="cue">${e.c}</div></div>`;
     }
-    const sets = d.sets[eid] || [];
-    const last = lastBest(e.n, k);
+    const sets = d.sets[eid] || [], last = lastBest(e.n, k);
     let rows = '';
     for (let j = 0; j < e.s; j++) {
       const st = sets[j] || {};
-      rows += `<div class="n">${j + 1}</div><input class="field" inputmode="decimal" placeholder="lb" value="${st.w ?? ''}" data-in="w" data-e="${eid}" data-i="${j}"><input class="field" inputmode="numeric" placeholder="reps" value="${st.r ?? ''}" data-in="r" data-e="${eid}" data-i="${j}">${chk(st.d, 'set-done', `data-e="${eid}" data-i="${j}"`)}`;
+      rows += `<div class="n">${j + 1}</div><input class="field" id="w-${eid}-${j}" inputmode="decimal" placeholder="lb" value="${st.w ?? ''}" data-in="w" data-e="${eid}" data-i="${j}"><input class="field" id="r-${eid}-${j}" inputmode="numeric" placeholder="reps" value="${st.r ?? ''}" data-in="r" data-e="${eid}" data-i="${j}">${chk(st.d, 'set-done', `data-e="${eid}" data-i="${j}"`)}`;
     }
-    return `<div class="card ex"><div class="hd"><div><div class="tt">${i + 1}. ${e.n}</div><div style="margin-top:6px"><span class="tag">${e.t}</span> <span class="tag g">${e.s} × ${e.r}</span></div></div><span class="muted">${e.rest || ''}</span></div>
+    return `<div class="card ex"><div class="hd"><div><div class="tt">${i + 1}. ${e.n}</div><div class="row" style="margin-top:6px"><span class="tag">${e.t}</span><span class="tag g">${e.s} × ${e.r}</span></div></div><span class="muted" style="white-space:nowrap">${e.rest || ''}</span></div>
       <div class="cue">${e.c}</div>${last ? `<div class="muted" style="margin-top:6px">Last time: ${last}</div>` : ''}
       <div class="sets">${rows}</div></div>`;
   }).join('');
   const done = d.workout === s.id;
-  return `<div class="wrap"><div class="top"><button class="back" data-act="close">${I(ICON.back, 20)}</button><span class="muted">${ui.sel === today() ? 'Today' : fmtDate(ui.sel)}</span></div>
-    <div class="h1" style="margin-top:16px">${s.id === 'R' ? '' : s.id + ' · '}${s.name}</div><p class="lead">${esc(s.focus)}</p>
-    <div class="stack" style="margin-top:14px">${ex}</div>
-    <button class="btn ${done ? 'done' : ''}" data-act="finish" data-id="${s.id}">${done ? 'Session done ✓' : 'Finish session'}</button></div>`;
+  return `<div class="wrap">${backBar(`<span class="muted">${ui.sel === today() ? 'Today' : fmtDate(ui.sel)}</span>`)}
+    <div class="h1" style="margin-top:16px">${s.name}</div><p class="lead">${esc(s.focus)}</p>
+    <div class="stack" style="margin-top:16px">${ex}</div>
+    <button class="btn ${done ? 'done' : ''}" style="margin-top:18px" data-act="finish" data-id="${s.id}">${done ? 'Session done' : 'Finish session'}</button></div>`;
 }
 
 function renderRoutine(id) {
-  const arr = id === 'core' ? CORE : STRETCH, d = day(ui.sel), on = !!d.h[id];
-  return `<div class="wrap"><div class="top"><button class="back" data-act="close">${I(ICON.back, 20)}</button></div>
-    <div class="h1" style="margin-top:16px">${id === 'core' ? 'Core' : 'Stretch'} · 10 min</div><p class="lead">${id === 'core' ? 'Tight, flat, defined — without bulking the waist.' : 'Hips, adductors & back. Do it after training or before bed.'}</p>
-    <div class="card" style="margin-top:14px">${arr.map(x => `<div class="list-row"><div class="tx"><div class="tt" style="font-size:15px">${x.n}</div><div class="st">${x.c}</div></div><span class="tag">${x.r}</span></div>`).join('')}</div>
-    <button class="btn ${on ? 'done' : ''}" data-act="routine-done" data-id="${id}">${on ? 'Done ✓' : 'Mark done'}</button></div>`;
+  const arr = id === 'core' ? CORE : STRETCH, on = !!day(ui.sel).h[id];
+  return `<div class="wrap">${backBar()}
+    <div class="h1" style="margin-top:16px">${id === 'core' ? 'Core' : 'Stretch'}</div><p class="lead">${id === 'core' ? '10 minutes for a tight, flat waist without bulk.' : '10 minutes for hips, inner thighs and back. After training or before bed.'}</p>
+    <div class="card" style="margin-top:16px">${arr.map(x => `<div class="list-row"><div class="tx"><div class="tt" style="font-size:15px">${x.n}</div><div class="st">${x.c}</div></div><span class="tag">${x.r}</span></div>`).join('')}</div>
+    <button class="btn ${on ? 'done' : ''}" style="margin-top:18px" data-act="routine-done" data-id="${id}">${on ? 'Done' : 'Mark done'}</button></div>`;
+}
+
+function renderHealthSetup() {
+  return `<div class="wrap">${backBar()}
+    <div class="h1" style="margin-top:16px">Steps from Apple Health</div>
+    <p class="lead">Apple only lets App Store apps read Health directly. A shortcut bridges the gap in one tap. You set it up once.</p>
+    ${label('Set up once')}
+    <div class="card pad"><ol class="ol">
+      <li><div>Open the <b>Shortcuts</b> app and tap <b>+</b>.</div></li>
+      <li><div>Add <b>Find Health Samples</b>. Set Type to <b>Steps</b> and Start Date to <b>is today</b>.</div></li>
+      <li><div>Add <b>Calculate Statistics</b> and choose <b>Sum</b>.</div></li>
+      <li><div>Add <b>Round Number</b>.</div></li>
+      <li><div>Add <b>Copy to Clipboard</b>.</div></li>
+      <li><div>Name it exactly <b>Sculpt Steps</b> and tap Done. Allow Health access when it asks.</div></li>
+    </ol></div>
+    ${label('Every day')}
+    <div class="card pad"><ol class="ol">
+      <li><div>On the Steps habit, tap <b>Get from Health</b>. The shortcut runs.</div></li>
+      <li><div>Come back to Sculpt with the back arrow in the top left corner.</div></li>
+      <li><div>Tap <b>Paste steps</b>, then tap <b>Paste</b> when iPhone asks.</div></li>
+    </ol></div>
+    <p class="muted" style="margin:12px 4px">Walked without your phone? Add those steps with the buttons under Added by you. They are kept separate, so pasting your Health steps never erases them.</p></div>`;
 }
 
 /* ---------- EAT ---------- */
 function renderEat() {
-  const d = day(ui.sel), f = d.food;
-  const t = { k: sum(f, 'k'), p: sum(f, 'p'), c: sum(f, 'c'), f: sum(f, 'f') };
+  const d = day(ui.sel), f = d.food, t = addN(f);
   const left = TARGET.kcal - t.k;
-  const m = (l, v, tg, col) => `<div class="m"><div>${l}<span>${v} / ${tg}g</span></div><div class="bar"><i style="width:${Math.min(100, v / tg * 100)}%;background:${col}"></i></div></div>`;
-  const groups = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Extras', 'Treat'];
-  const lib = FOODS.map((x, i) => [x, i]).filter(([x]) => x.g === ui.eatGroup).map(([x, i]) => `<div class="list-row"><div class="tx"><div style="font-size:14px;font-weight:600">${x.n}</div><div class="st">${x.k} kcal · ${x.p}g protein</div></div><button class="plus" data-act="add-food" data-i="${i}" aria-label="add">${I(ICON.plus, 18, 2.4)}</button></div>`).join('');
-  return `<div class="h1">Eat</div><p class="lead">${ui.sel === today() ? 'Today' : fmtDate(ui.sel)} · whole foods, weighed</p>
-    <div class="card pad" style="margin-top:14px"><div class="macro">
-      <div class="bigring">${ring(t.k / TARGET.kcal, 112, 9, left < 0 ? 'var(--rose)' : 'var(--ink)')}<div><b>${Math.abs(left)}</b><small>${left < 0 ? 'kcal over' : 'kcal left'}</small></div></div>
+  const m = (l, v, tg, col) => `<div class="m"><div>${l}<span class="num">${r0(v)} of ${tg} g</span></div><div class="bar"><i style="width:${Math.min(100, v / tg * 100)}%;background:${col}"></i></div></div>`;
+  const slots = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
+  const meals = MEALS.filter(x => x.slot === ui.mealSlot).map(x => {
+    const n = mealTotals(x.items);
+    return `<button class="list-row" data-act="open-meal" data-id="${x.id}"><span class="ico">${I(ICON[x.icon], 20)}</span><div class="tx"><div style="font-size:15px;font-weight:700">${x.n}</div>${macroChips(n)}</div>${I('<path d="M9 5l7 7-7 7"/>', 18)}</button>`;
+  }).join('');
+  return `<div class="h1">Eat</div><p class="lead">${ui.sel === today() ? 'Today' : fmtDate(ui.sel)}</p>
+    <div class="card pad" style="margin-top:16px"><div class="macro">
+      <div class="bigring">${ring(t.k / TARGET.kcal, 112, 9, left < 0 ? 'var(--rose)' : 'var(--ink)')}<div><b class="num">${fmt(Math.abs(left))}</b><small>${left < 0 ? 'kcal over' : 'kcal left'}</small></div></div>
       <div class="mx">${m('Protein', t.p, TARGET.p, 'var(--ink)')}${m('Carbs', t.c, TARGET.c, 'var(--glow)')}${m('Fat', t.f, TARGET.f, 'var(--rose)')}</div>
-    </div></div>
-    <div class="label">Logged</div>
-    <div class="card">${f.length ? f.map((x, i) => `<div class="list-row"><div class="tx"><div style="font-size:14px;font-weight:600">${esc(x.n)}</div><div class="st">${x.k} kcal · ${x.p}g P · ${x.c || 0}g C · ${x.f || 0}g F</div></div><button class="x" data-act="rm-food" data-i="${i}" aria-label="remove">${I(ICON.x, 14, 2.2)}</button></div>`).join('') : '<div class="list-row muted">Nothing logged yet — tap + below.</div>'}</div>
-    <div class="label">Your meals</div>
-    <div class="row" style="margin-bottom:10px">${groups.map(g => `<button class="chip ${ui.eatGroup === g ? 'on' : ''}" data-act="group" data-id="${g}">${g}</button>`).join('')}</div>
-    <div class="card">${lib}</div>
-    <div class="label">Custom</div>
-    <div class="card pad"><div class="row"><input class="field" id="cf-n" placeholder="Food"></div>
-      <div class="row" style="margin-top:8px"><input class="field" id="cf-k" inputmode="numeric" placeholder="kcal"><input class="field" id="cf-p" inputmode="numeric" placeholder="protein g"></div>
-      <button class="btn small" data-act="add-custom">Add</button></div>
-    <p class="muted" style="margin:10px 4px">Values are estimates. Weigh pasta/rice dry and meat raw for the most accuracy.</p>`;
+    </div>
+    <div class="row" style="justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)"><span class="muted">Eaten ${fmt(t.k)} of ${fmt(TARGET.kcal)} kcal</span><span class="muted">Fiber ${r0(t.fib)} of ${TARGET.fib} g</span></div></div>
+    <button class="searchbar" style="width:100%;margin-top:14px;border:0" data-act="open-search">${I(ICON.search, 20)}<span style="font-size:16px">Search any food</span></button>
+    ${label('Logged')}
+    <div class="card">${f.length ? f.map((x, i) => `<div class="list-row"><button class="tx" style="background:none;border:0;padding:0;text-align:left" data-act="open-logged" data-i="${i}"><div style="font-size:14px;font-weight:700">${esc(x.n)}</div>${macroChips(x)}</button><button class="x" data-act="rm-food" data-i="${i}" aria-label="Remove">${I(ICON.x, 14, 2.2)}</button></div>`).join('') : `<div class="list-row muted">Nothing logged yet. Search a food or tap a meal below.</div>`}</div>
+    ${label('Your meals', 'bowl')}
+    <div class="row" style="margin-bottom:10px">${slots.map(g => `<button class="chip ${ui.mealSlot === g ? 'on' : ''}" data-act="slot" data-id="${g}">${g}</button>`).join('')}</div>
+    <div class="card">${meals}</div>
+    <button class="btn sec" style="margin-top:12px" data-act="open-custom">${I(ICON.plus, 18, 2.2)}Add a custom food</button>
+    ${label('Smart swaps', 'swap')}
+    <div class="stack">${SWAPS.map(s => `<div class="bubble"><span class="ico">${I(ICON[s.icon], 20)}</span><div class="tx"><div class="tt">${s.t}</div><div class="st">${s.d}</div></div></div>`).join('')}</div>`;
+}
+const SWAPS = [
+  { icon: 'scaleFood', t: 'Measure your ghee', d: '1 tsp is about 40 kcal. A free pour is often 2 to 3 tbsp, which is 250 to 370 kcal.' },
+  { icon: 'egg', t: 'Three meals and a snack', d: '125 g of protein is hard to reach in two meals.' },
+  { icon: 'swap', t: 'Choose 90/10 beef', d: 'Same red meat as 80/20 with about 115 kcal less per 150 g.' },
+  { icon: 'bowl', t: 'Plain Greek yogurt bowl', d: 'Swap the vanilla cup and protein bar for plain Greek yogurt, berries and a little honey.' },
+  { icon: 'scale', t: 'Weigh your carbs', d: '70 g dry pasta, 150 g cooked rice or 200 g sweet potato per meal.' },
+  { icon: 'leaf', t: 'Vegetables twice a day', d: 'Fiber keeps you full. Add avocado a few times a week.' },
+  { icon: 'heart', t: 'One planned treat a week', d: 'Pick the day, log it, and enjoy it. Planned is not failing.' },
+  { icon: 'fish', t: 'Fish is optional', d: 'Wild salmon and sardines are among the lowest mercury fish. Twice a week replaces fish oil.' },
+];
+
+function renderSearch() {
+  const o = ui.overlay;
+  return `<div class="wrap">${backBar()}
+    <div class="searchbar" style="margin-top:14px">${I(ICON.search, 20)}<input id="food-q" type="search" placeholder="Search eggs, honey, queso, rice" value="${esc(o.q || '')}" data-live="search" autocomplete="off"></div>
+    <div id="results" style="margin-top:6px">${searchResultsHTML()}</div></div>`;
+}
+function foodRow(f) {
+  const u = f.units[0], n = scale(f, u[1]);
+  return `<button class="list-row" data-act="open-food" data-id="${f.id}"><div class="tx"><div style="font-size:14px;font-weight:700">${esc(f.n)}</div><div class="st">${esc(u[0] === 'grams' ? '100 g' : u[0])}, ${esc(f.src)}</div>${macroChips(u[0] === 'grams' ? scale(f, 100) : n)}</div></button>`;
+}
+function searchResultsHTML() {
+  const o = ui.overlay, q = (o.q || '').trim();
+  if (!q) {
+    const rec = S.recent.map(foodById).filter(Boolean);
+    return `${rec.length ? `${label('Recent')}<div class="card">${rec.map(foodRow).join('')}</div>` : ''}
+      ${S.myFoods.length ? `${label('My foods')}<div class="card">${S.myFoods.map(f => foodRow(foodById(f.id))).join('')}</div>` : ''}
+      ${FOOD_CATS.map(c => `${label(c)}<div class="card">${STAPLES.filter(f => f.cat === c).map(foodRow).join('')}</div>`).join('')}`;
+  }
+  const r = searchFoods(q);
+  const online = o.online;
+  return `${r.mine.length ? `${label('Your staples')}<div class="card">${r.mine.map(foodRow).join('')}</div>` : ''}
+    ${label('USDA database')}${USDA ? (r.usda.length ? `<div class="card">${r.usda.map(foodRow).join('')}</div>` : '<p class="muted" style="margin:0 4px">No matches. Try a simpler word, like cheese or rice.</p>') : '<p class="muted" style="margin:0 4px">Loading 7,000 foods</p>'}
+    ${label('Brand names')}
+    ${online === 'loading' ? '<p class="muted" style="margin:0 4px">Searching</p>'
+      : online?.error ? `<p class="muted" style="margin:0 4px">${online.error}</p>`
+      : Array.isArray(online) ? (online.length ? `<div class="card">${online.map(foodRow).join('')}</div>` : '<p class="muted" style="margin:0 4px">No brand matches.</p>')
+      : `<button class="btn sec" data-act="search-online">${I(ICON.search, 18, 2)}Search brand names online</button>`}
+    <button class="btn sec" style="margin-top:12px" data-act="open-custom">Not here? Add it from the label</button>`;
+}
+
+function renderFood() {
+  const o = ui.overlay, f = o.food;
+  const u = f.units[o.unit] || f.units[0], g = (parseFloat(o.amt) || 0) * u[1];
+  const n = addN([scale(f, g)]);
+  const serving = u[0] === 'grams' ? `${r1(g)} g` : `${o.amt} × ${u[0]} (${r1(g)} g)`;
+  const saved = f.id.startsWith('m:') || f.id.startsWith('s:') || S.myFoods.some(x => x.origin === f.id);
+  return `<div class="wrap">${backBar()}
+    <div class="h1" style="margin-top:16px;font-size:24px">${esc(f.n)}</div>
+    <div class="row" style="margin:12px 0 16px;flex-wrap:nowrap"><input class="field" id="food-amt" inputmode="decimal" value="${esc(o.amt)}" data-live="amt" style="flex:0 0 96px;text-align:center" aria-label="Amount">
+      <select class="field" id="food-unit" data-in="unit" aria-label="Unit">${f.units.map((x, i) => `<option value="${i}" ${i === o.unit ? 'selected' : ''}>${esc(x[0] === 'grams' ? 'grams' : x[0])}</option>`).join('')}</select></div>
+    ${factsHTML(n, serving, f.src)}
+    <button class="btn" style="margin-top:18px" data-act="log-food">${I(ICON.plus, 20, 2.2)}Add to ${ui.sel === today() ? 'today' : fmtShort(ui.sel)}</button>
+    ${saved ? '' : `<button class="btn sec" style="margin-top:12px" data-act="save-food">Save to my foods</button>`}
+    ${f.id.startsWith('m:') ? `<button class="btn sec" style="margin-top:12px" data-act="del-myfood" data-id="${f.id}">Delete from my foods</button>` : ''}</div>`;
+}
+
+function renderMeal() {
+  const o = ui.overlay, m = MEALS.find(x => x.id === o.id);
+  const n = mealTotals(o.items);
+  return `<div class="wrap">${backBar(`<span class="tag">${m.slot}</span>`)}
+    <div class="h1" style="margin-top:16px;font-size:24px">${m.n}</div>
+    <p class="lead">Change any amount to match your plate.</p>
+    <div class="card" style="margin:16px 0">${o.items.map(([id, g], i) => {
+      const f = foodById(id), fn = scale(f, g);
+      return `<div class="list-row"><div class="tx"><div style="font-size:14px;font-weight:700">${esc(f.n)}</div><div class="st" id="mi-${i}">${r0(fn.k)} kcal, ${r1(fn.p)} g protein</div></div>
+        <input class="field" id="mg-${i}" inputmode="decimal" value="${g}" data-live="mealg" data-i="${i}" style="flex:0 0 76px;text-align:center" aria-label="Grams"><span class="muted">g</span></div>`;
+    }).join('')}</div>
+    ${factsHTML(n, 'Whole meal', 'USDA and package labels')}
+    <button class="btn" style="margin-top:18px" data-act="log-meal">${I(ICON.plus, 20, 2.2)}Add to ${ui.sel === today() ? 'today' : fmtShort(ui.sel)}</button></div>`;
+}
+
+function renderLogged() {
+  const x = day(ui.sel).food[ui.overlay.i];
+  if (!x) return '';
+  const n = { ...x }; NK.forEach(k => { if (n[k] === undefined) n[k] = null; });
+  return `<div class="wrap">${backBar()}
+    <div class="h1" style="margin-top:16px;font-size:24px">${esc(x.n)}</div>
+    ${x.items ? `<div class="card" style="margin:16px 0">${x.items.map(it => `<div class="list-row"><div class="tx" style="font-size:14px">${esc(it.n)}</div><span class="muted num">${r1(it.g)} g</span></div>`).join('')}</div>` : '<div style="height:16px"></div>'}
+    ${factsHTML(n, x.g ? `${r1(x.g)} g` : 'As logged', '')}
+    <button class="btn sec" style="margin-top:18px" data-act="rm-food" data-i="${ui.overlay.i}">Remove from log</button></div>`;
+}
+
+function renderCustom() {
+  const fld = (id, l, ph, mode = 'decimal') => `<label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--t2)">${l}<input class="field" id="${id}" inputmode="${mode}" placeholder="${ph}"></label>`;
+  return `<div class="wrap">${backBar()}
+    <div class="h1" style="margin-top:16px">Custom food</div>
+    <p class="lead">Copy the numbers from the Nutrition Facts on the package.</p>
+    <div class="card pad stack" style="margin-top:16px">
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--t2)">Name<input class="field" id="cf-n" placeholder="Queso costeño, Brand"></label>
+      <div class="g2">${fld('cf-sl', 'Serving name', '1 slice', 'text')}${fld('cf-sg', 'Serving size (g)', '30')}</div>
+      ${fld('cf-k', 'Calories', '0')}
+      <div class="g2">${fld('cf-p', 'Protein (g)', '0')}${fld('cf-c', 'Total carbs (g)', '0')}</div>
+      <div class="g2">${fld('cf-f', 'Total fat (g)', '0')}${fld('cf-sat', 'Saturated fat (g)', 'optional')}</div>
+      <div class="g2">${fld('cf-fib', 'Fiber (g)', 'optional')}${fld('cf-sug', 'Total sugars (g)', 'optional')}</div>
+      ${fld('cf-na', 'Sodium (mg)', 'optional')}
+    </div>
+    <button class="btn" style="margin-top:18px" data-act="custom-save" data-log="1">Save and add to ${ui.sel === today() ? 'today' : fmtShort(ui.sel)}</button>
+    <button class="btn sec" style="margin-top:12px" data-act="custom-save">Save to my foods only</button></div>`;
 }
 
 /* ---------- PROGRESS ---------- */
+function challengeCard() {
+  const s = chStats(), L = ladderOf(s.len), t = today();
+  const idx = LADDER.findIndex(l => l.len === s.len);
+  const won = len => S.chLog.some(x => x.len === len && x.status === 'finished') || (s.finished && s.len === len);
+  const steps = LADDER.map((l, i) => `<button class="step ${l.len === s.len && !s.finished ? 'cur' : ''} ${won(l.len) ? 'won' : ''}" data-act="ch-pick" data-len="${l.len}"><span class="c">${won(l.len) ? I(ICON.check, 20, 2.6) : l.len}</span><span>${l.short}</span><small>${l.why}</small></button>`).join('');
+  let dots = '';
+  for (let i = 0; i < s.len; i++) {
+    const k = addDays(S.ch.start, i), cls = S.days[k]?.done ? 'done' : k === t ? 'today' : k < t ? 'miss' : '';
+    dots += `<div class="dot ${cls}" title="Day ${i + 1}">${cls === 'today' || (cls === 'done' && s.len <= 20) ? i + 1 : ''}</div>`;
+  }
+  const next = LADDER[idx + 1];
+  let confirm = '';
+  if (ui.chPick) {
+    const restart = ui.chPick === 'restart', pl = restart ? L : ladderOf(+ui.chPick);
+    confirm = `<div class="confirm"><div class="tt" style="font-size:15px">${restart ? `Restart the ${L.name}?` : `Start the ${pl.name}?`}</div>
+      <div class="st" style="margin:0">Day 1 will be today, ${fmtDate(t)}. Your logs and history stay.</div>
+      <div class="row"><button class="chip dark" data-act="ch-go" data-len="${restart ? s.len : ui.chPick}">${restart ? 'Restart' : 'Start'}</button><button class="chip" data-act="ch-cancel">Cancel</button></div></div>`;
+  }
+  return `<div class="card pad stack">
+    <div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><div class="tt" style="font-size:18px">${L.name}</div><div class="st">${s.finished ? 'Complete' : `Day ${s.cur} of ${s.len}, started ${fmtShort(S.ch.start)}`}</div></div><span class="ico ink">${I(ICON.trophy, 20)}</span></div>
+    <div class="ladder">${steps}</div>
+    <div class="dots">${dots}</div>
+    <div class="legend2"><span><i style="background:var(--ink)"></i>Complete</span><span><i style="background:var(--miss)"></i>Missed</span><span><i style="background:#fff;box-shadow:inset 0 0 0 2px var(--glow)"></i>Today</span><span><i style="background:var(--track)"></i>Ahead</span></div>
+    <div class="stat3" style="border:1px solid var(--border);border-radius:16px"><div><b class="num">${s.done}</b><small>Complete</small></div><div><b class="num">${s.miss}</b><small>Missed</small></div><div><b class="num">${s.left}</b><small>Days left</small></div></div>
+    ${confirm}
+    ${s.finished && next && !ui.chPick ? `<button class="btn" data-act="ch-pick" data-len="${next.len}">Start the ${next.name}</button>` : ''}
+    ${!ui.chPick ? `<button class="btn sec" data-act="ch-pick" data-len="restart">${I(ICON.refresh, 18, 2)}Restart from Day 1</button>` : ''}
+  </div>`;
+}
+
 function renderProgress() {
   const t = today(), avg = weekAvg(t), prev = weekAvg(addDays(t, -7));
   const W = [...S.weights].sort((a, b) => a.d < b.d ? -1 : 1);
-  const startLb = W[0]?.lb;
   const delta = avg != null && prev != null ? avg - prev : null;
   const toGoal = avg != null ? avg - TARGET.goal : null;
   const M = [...S.measures].sort((a, b) => a.d < b.d ? 1 : -1);
-  return `<div class="h1">Progress</div><p class="lead">Trust the 7-day average, not one morning.</p>
-    <div class="card" style="margin-top:14px"><div class="stat3">
-      <div><b class="rounded">${avg != null ? avg.toFixed(1) : '—'}</b><small>7-day avg (lb)</small></div>
-      <div><b class="rounded">${delta != null ? (delta > 0 ? '+' : '') + delta.toFixed(1) : '—'}</b><small>vs last week</small></div>
-      <div><b class="rounded">${toGoal != null ? Math.max(0, toGoal).toFixed(1) : '—'}</b><small>lb to ${TARGET.goal}</small></div>
+  return `<div class="h1">Progress</div><p class="lead">Trust the 7 day average, not one morning.</p>
+    ${label('Challenge', 'trophy')}${challengeCard()}
+    ${label('Weight', 'scale')}
+    <div class="card"><div class="stat3">
+      <div><b class="rounded num">${avg != null ? avg.toFixed(1) : '0'}</b><small>7 day average</small></div>
+      <div><b class="rounded num">${delta != null ? (delta > 0 ? '+' : '') + delta.toFixed(1) : '0'}</b><small>vs last week</small></div>
+      <div><b class="rounded num">${toGoal != null ? Math.max(0, toGoal).toFixed(1) : '0'}</b><small>lb to ${TARGET.goal}</small></div>
     </div></div>
-    <div class="label">Weigh-in</div>
-    <div class="card pad"><div class="row"><input class="field" id="wt" inputmode="decimal" placeholder="Morning weight (lb)"><button class="plus" data-act="add-weight" aria-label="add">${I(ICON.plus, 18, 2.4)}</button></div>
-      <div class="muted" style="margin-top:8px">Morning, after the bathroom, before food. Expect ±2–3 lb swings — and higher during your period week.</div></div>
-    <div class="label">Weight trend</div>
-    <div class="card pad">${W.length >= 2 ? `<div class="tt" style="font-size:14px">Body weight (lb)</div><div class="chart" id="chart"></div>
-      <div class="legend"><span><i style="width:8px;height:8px;border-radius:50%;background:var(--dot-day)"></i>Daily</span><span><i style="width:16px;height:2px;background:var(--line-avg)"></i>7-day avg</span><span><i style="width:16px;border-top:2px dashed var(--t3)"></i>Goal</span></div>` : '<div class="muted">Log at least two weigh-ins to see your trend.</div>'}</div>
-    ${W.length ? `<div class="label">History</div><div class="card">${[...W].reverse().slice(0, 14).map(x => `<div class="list-row"><div class="tx"><div style="font-size:14px;font-weight:600">${x.lb.toFixed(1)} lb</div><div class="st">${fmtDate(x.d)} · avg ${weekAvg(x.d).toFixed(1)}</div></div><button class="x" data-act="rm-weight" data-k="${x.d}" aria-label="remove">${I(ICON.x, 14, 2.2)}</button></div>`).join('')}</div>` : ''}
+    <div class="card pad" style="margin-top:12px"><div class="row" style="flex-wrap:nowrap"><input class="field" id="wt" inputmode="decimal" placeholder="Morning weight in lb"><button class="plus" data-act="add-weight" aria-label="Save weight">${I(ICON.plus, 18, 2.4)}</button></div>
+      <div class="muted" style="margin-top:8px">Weigh in after the bathroom, before food. Swings of 2 to 3 lb are normal, more during your period.</div></div>
+    <div class="card pad" style="margin-top:12px">${W.length >= 2 ? `<div class="tt" style="font-size:14px">Body weight (lb)</div><div class="chart" id="chart"></div>
+      <div class="legend"><span><i style="width:8px;height:8px;border-radius:50%;background:var(--dot-day)"></i>Daily</span><span><i style="width:16px;height:2px;background:var(--line-avg)"></i>7 day average</span><span><i style="width:16px;border-top:2px dashed var(--t3)"></i>Goal</span></div>` : '<div class="muted">Log two weigh ins to see your trend.</div>'}</div>
+    ${W.length ? `<div class="card" style="margin-top:12px">${[...W].reverse().slice(0, 10).map(x => `<div class="list-row"><div class="tx"><div style="font-size:14px;font-weight:700" class="num">${x.lb.toFixed(1)} lb</div><div class="st">${fmtDate(x.d)}, average ${weekAvg(x.d).toFixed(1)}</div></div><button class="x" data-act="rm-weight" data-k="${x.d}" aria-label="Remove">${I(ICON.x, 14, 2.2)}</button></div>`).join('')}</div>` : ''}
     ${renderPhotos()}
-    <div class="label">Measurements · every 2 weeks</div>
-    <div class="card pad"><div class="row"><input class="field" id="m-w" inputmode="decimal" placeholder="Waist"><input class="field" id="m-h" inputmode="decimal" placeholder="Hips"><input class="field" id="m-t" inputmode="decimal" placeholder="Thigh"></div>
-      <button class="btn small" data-act="add-measure">Save (inches)</button>
-      <div class="muted" style="margin-top:8px">Waist at the navel, hips at the widest part of the glutes, thigh 6" above the knee. Hips steady or up + waist & thigh down = it's working.</div></div>
-    ${M.length ? `<div class="card" style="margin-top:12px">${M.map(x => `<div class="list-row"><div class="tx"><div style="font-size:14px;font-weight:600">W ${x.w || '–'} · H ${x.h || '–'} · T ${x.t || '–'}</div><div class="st">${fmtDate(x.d)}</div></div><button class="x" data-act="rm-measure" data-k="${x.d}" aria-label="remove">${I(ICON.x, 14, 2.2)}</button></div>`).join('')}</div>` : ''}
-    ${startLb ? `<p class="muted" style="margin:12px 4px">Started at ${startLb.toFixed(1)} lb on ${fmtDate(W[0].d)}.</p>` : ''}`;
+    ${label('Measurements, every 2 weeks', 'ruler')}
+    <div class="card pad"><div class="row" style="flex-wrap:nowrap"><input class="field" id="m-w" inputmode="decimal" placeholder="Waist"><input class="field" id="m-h" inputmode="decimal" placeholder="Hips"><input class="field" id="m-t" inputmode="decimal" placeholder="Thigh"></div>
+      <button class="btn sm" style="margin-top:12px" data-act="add-measure">Save in inches</button>
+      <div class="muted" style="margin-top:8px">Waist at the belly button, hips at the widest part of your glutes, thigh 6 inches above the knee. Hips steady or up while waist and thigh go down means it is working.</div></div>
+    ${M.length ? `<div class="card" style="margin-top:12px">${M.map(x => `<div class="list-row"><div class="tx"><div style="font-size:14px;font-weight:700">Waist ${x.w ?? '?'}, hips ${x.h ?? '?'}, thigh ${x.t ?? '?'}</div><div class="st">${fmtDate(x.d)}</div></div><button class="x" data-act="rm-measure" data-k="${x.d}" aria-label="Remove">${I(ICON.x, 14, 2.2)}</button></div>`).join('')}</div>` : ''}`;
 }
 
 function renderPhotos() {
   const pick = ui.cmp, byDay = {};
   PHOTOS.forEach(p => (byDay[p.d] ||= []).push(p));
   const days = Object.keys(byDay).sort().reverse();
-  return `<div class="label">Progress photos</div>
+  return `${label('Progress photos', 'sparkle')}
     <div class="card pad">
       <div class="row">${['Front', 'Side', 'Back'].map(x => `<button class="chip ${ui.pose === x ? 'on' : ''}" data-act="pose" data-id="${x}">${x}</button>`).join('')}</div>
-      <label class="btn small" for="ph-in">Add ${ui.pose.toLowerCase()} photo</label>
+      <label class="btn sm" style="margin-top:12px" for="ph-in">Add ${ui.pose.toLowerCase()} photo</label>
       <input id="ph-in" class="vh" type="file" accept="image/*" multiple>
-      <div class="muted" style="margin-top:8px">Every 2 weeks: same spot, same light, morning, same outfit. Photos stay private on this phone.</div>
+      <div class="muted" style="margin-top:8px">Every 2 weeks in the same spot, light and outfit. Photos stay private on this phone.</div>
     </div>
-    ${days.length ? `<div class="row" style="justify-content:space-between;margin:12px 4px 0"><span class="muted">${pick ? `Pick 2 photos to compare (${pick.length}/2)` : `${PHOTOS.length} photo${PHOTOS.length > 1 ? 's' : ''}`}</span>${PHOTOS.length > 1 ? `<button class="chip ${pick ? 'on' : ''}" data-act="cmp">${pick ? 'Cancel' : 'Compare'}</button>` : ''}</div>
+    ${days.length ? `<div class="row" style="justify-content:space-between;margin:12px 4px 0"><span class="muted">${pick ? `Pick 2 photos to compare (${pick.length} of 2)` : `${PHOTOS.length} photo${PHOTOS.length > 1 ? 's' : ''}`}</span>${PHOTOS.length > 1 ? `<button class="chip ${pick ? 'on' : ''}" data-act="cmp">${pick ? 'Cancel' : 'Compare'}</button>` : ''}</div>
     <div class="stack" style="margin-top:10px">${days.map(d => `<div><div class="muted" style="margin:0 4px 6px;font-weight:600">${fmtDate(d)}</div><div class="pgrid">${byDay[d].map(p => `<button class="ph ${pick?.includes(p.id) ? 'picked' : ''}" data-act="photo" data-id="${p.id}"><img src="${URLS[p.id]}" alt="${p.pose} photo, ${fmtDate(d)}"><span class="tag">${p.pose}</span></button>`).join('')}</div></div>`).join('')}</div>` : ''}`;
 }
-const avgNote = k => { const a = weekAvg(k); return a != null ? `7-day avg ${a.toFixed(1)} lb` : ''; };
+const avgNote = k => { const a = weekAvg(k); return a != null ? `7 day average ${a.toFixed(1)} lb` : ''; };
 function renderPhotoView(id) {
   const p = PHOTOS.find(x => x.id === id);
   if (!p) return '';
-  return `<div class="wrap"><div class="top"><button class="back" data-act="close">${I(ICON.back, 20)}</button><span class="muted">${p.pose} · ${fmtDate(p.d)}</span></div>
+  return `<div class="wrap">${backBar(`<span class="muted">${p.pose}, ${fmtDate(p.d)}</span>`)}
     <img class="photo-full" src="${URLS[id]}" alt="${p.pose} photo, ${fmtDate(p.d)}">
     ${avgNote(p.d) ? `<p class="muted" style="margin:10px 4px 0">${avgNote(p.d)}</p>` : ''}
-    <button class="btn sec" data-act="del-photo" data-id="${id}">Delete photo</button></div>`;
+    <button class="btn sec" style="margin-top:18px" data-act="del-photo" data-id="${id}">Delete photo</button></div>`;
 }
 function renderCompare(ids) {
   const [a, b] = ids.map(id => PHOTOS.find(x => x.id === id)).filter(Boolean).sort((x, y) => x.d < y.d ? -1 : 1);
   if (!a || !b) return '';
-  const gap = Math.round((dateOf(b.d) - dateOf(a.d)) / 864e5);
-  const col = p => `<div><img src="${URLS[p.id]}" alt="${p.pose} photo, ${fmtDate(p.d)}"><div class="tt">${dateOf(p.d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div><div class="st">${p.pose}${avgNote(p.d) ? ' · ' + avgNote(p.d) : ''}</div></div>`;
-  return `<div class="wrap"><div class="top"><button class="back" data-act="close">${I(ICON.back, 20)}</button><span class="muted">${gap === 0 ? 'Same day' : `${gap} day${gap > 1 ? 's' : ''} apart`}</span></div>
-    <div class="h1" style="margin-top:16px">Before & after</div>
+  const gap = diffDays(a.d, b.d);
+  const col = p => `<div><img src="${URLS[p.id]}" alt="${p.pose} photo, ${fmtDate(p.d)}"><div class="tt" style="font-size:14px;margin-top:8px">${dateOf(p.d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div><div class="st">${p.pose}${avgNote(p.d) ? `. ${avgNote(p.d)}` : ''}</div></div>`;
+  return `<div class="wrap">${backBar(`<span class="muted">${gap === 0 ? 'Same day' : `${gap} day${gap > 1 ? 's' : ''} apart`}</span>`)}
+    <div class="h1" style="margin-top:16px">Before and after</div>
     <div class="cmp">${col(a)}${col(b)}</div></div>`;
 }
 
@@ -646,15 +1075,14 @@ function drawChart() {
   const pts = W.map(x => ({ d: x.d, lb: x.lb, avg: weekAvg(x.d), t: dateOf(x.d).getTime() }));
   const w = el.clientWidth, h = 190, L = 34, R = 8, T = 10, B = 22;
   const vals = pts.flatMap(p => [p.lb, p.avg]).concat(TARGET.goal);
-  let lo = Math.floor(Math.min(...vals) - 1), hi = Math.ceil(Math.max(...vals) + 1);
-  const t0 = pts[0].t, t1 = pts[pts.length - 1].t || t0 + 1;
+  const lo = Math.floor(Math.min(...vals) - 1), hi = Math.ceil(Math.max(...vals) + 1);
+  const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
   const X = t => L + (t1 === t0 ? 0.5 : (t - t0) / (t1 - t0)) * (w - L - R);
   const Y = v => T + (hi - v) / (hi - lo) * (h - T - B);
   const step = Math.max(1, Math.ceil((hi - lo) / 4));
   let grid = '';
   for (let v = lo; v <= hi; v += step) grid += `<line x1="${L}" x2="${w - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--track)" stroke-width="1"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end" font-size="10" fill="var(--t3)">${v}</text>`;
-  const fd = k => dateOf(k).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const xl = `<text x="${L}" y="${h - 4}" font-size="10" fill="var(--t3)">${fd(pts[0].d)}</text><text x="${w - R}" y="${h - 4}" font-size="10" fill="var(--t3)" text-anchor="end">${fd(pts[pts.length - 1].d)}</text>`;
+  const xl = `<text x="${L}" y="${h - 4}" font-size="10" fill="var(--t3)">${fmtShort(pts[0].d)}</text><text x="${w - R}" y="${h - 4}" font-size="10" fill="var(--t3)" text-anchor="end">${fmtShort(pts[pts.length - 1].d)}</text>`;
   const goal = `<line x1="${L}" x2="${w - R}" y1="${Y(TARGET.goal)}" y2="${Y(TARGET.goal)}" stroke="var(--t3)" stroke-width="1.5" stroke-dasharray="4 4"/><text x="${w - R}" y="${Y(TARGET.goal) - 5}" text-anchor="end" font-size="10" fill="var(--t2)">Goal ${TARGET.goal}</text>`;
   const line = pts.map((p, i) => `${i ? 'L' : 'M'}${X(p.t).toFixed(1)},${Y(p.avg).toFixed(1)}`).join('');
   const dots = pts.map(p => `<circle cx="${X(p.t)}" cy="${Y(p.lb)}" r="4" fill="var(--dot-day)" stroke="#fff" stroke-width="2"/>`).join('');
@@ -669,92 +1097,106 @@ function drawChart() {
     const px = X(best.t);
     xh.setAttribute('x1', px); xh.setAttribute('x2', px); xh.setAttribute('visibility', 'visible');
     tip.hidden = false; tip.style.left = Math.min(Math.max(px, 60), w - 60) + 'px'; tip.style.top = (Math.min(Y(best.lb), Y(best.avg)) - 8) + 'px';
-    tip.innerHTML = `<b>${fd(best.d)}</b><br>Weigh-in ${best.lb.toFixed(1)} lb<br>7-day avg ${best.avg.toFixed(1)} lb`;
+    tip.innerHTML = `<b>${fmtShort(best.d)}</b><br>Weigh in ${best.lb.toFixed(1)} lb<br>7 day average ${best.avg.toFixed(1)} lb`;
   };
   const leave = () => { tip.hidden = true; xh.setAttribute('visibility', 'hidden'); };
   hit.addEventListener('pointermove', move); hit.addEventListener('pointerdown', move); hit.addEventListener('pointerleave', leave);
 }
 
 /* ---------- PLAN ---------- */
+const SUPPS = [
+  { n: 'Creatine monohydrate', dose: '5 g', when: 'any time of day', why: 'The most researched supplement for strength and muscle. Helps you keep muscle while you lean out. Choose plain and unflavored.' },
+  { n: 'Magnesium glycinate', dose: '200 to 300 mg', when: 'before bed', why: 'Supports sleep, recovery and fewer cramps. Your diet is low in its main food sources.' },
+  { n: 'Omega 3 fish oil', dose: '1 to 2 g EPA and DHA', when: 'with a meal', why: 'Only on weeks you skip fatty fish. Choose a third party tested brand (IFOS).' },
+  { n: 'Electrolytes', dose: 'Pinch of sea salt', when: 'on 15,000 step days', why: 'Sea salt and lemon in water on sweaty, long walking days.' },
+];
 function renderPlan() {
-  return `<div class="h1">Plan</div><p class="lead">24 · 5'5" · lifting 5+ years · goal: lean, defined, glute-focused</p>
-  <div class="label">Your goal weight</div>
-  <div class="card pad prose"><p><b>Goal: 125 lb first.</b> At 5'5", 125 lb puts you around 20–22% body fat with your training history — visibly lean, defined back, flat core, and full glutes.</p>
-    <p>115 lb is still a healthy weight for your height, but getting there would almost certainly cost muscle you've spent 5 years building — and the glutes are usually the first to go flat. Muscle is what creates the shape you want.</p>
-    <p style="margin:0">Once you're at 125, judge by photos and measurements, not the scale. If you want more definition then, a short muscle-building phase usually looks better than dieting further.</p></div>
-  <div class="label">Daily targets</div>
-  <div class="card"><div class="stat3"><div><b class="rounded">1,800</b><small>kcal</small></div><div><b class="rounded">125g</b><small>protein</small></div><div><b class="rounded">12k</b><small>steps</small></div></div></div>
-  <div class="card pad prose" style="margin-top:12px"><ul style="margin:0"><li><b>Pace:</b> 0.5–0.75 lb/week → about 14–20 weeks to 125 (roughly Feb–Mar 2027).</li><li><b>Macros:</b> ~125g protein · ~170g carbs · ~60g fat. Put most carbs around training.</li><li><b>Adjust:</b> if your 7-day average hasn't dropped in 2 weeks (outside your period week), cut 100–150 kcal or add 2k steps — not both.</li><li><b>Steps:</b> 10k is the floor, 12k the target, 15k challenge days 2–3×/week.</li><li><b>Sleep:</b> 7.5–9h. Poor sleep raises hunger and water retention.</li></ul></div>
-  <div class="label">Food changes</div>
-  <div class="card pad prose"><p>Your base is already good — real food, red meat, eggs, dairy, butter/ghee. The main problem is <b>protein is too low</b> for two meals a day, and fats are unmeasured.</p><ul>
-    <li><b>Eat 3 meals + 1 snack.</b> 125g protein is hard to hit in 2 meals.</li>
-    <li><b>Measure butter/ghee.</b> 1 tsp (34 kcal) to cook. Free-poured, it's usually 2–3 tbsp (200–300 kcal) without noticing.</li>
-    <li><b>Use 90/10 or 93/7 ground beef</b> instead of 80/20 — same red meat, ~100 kcal less per serving.</li>
-    <li><b>Swap vanilla yogurt + protein bar → plain whole-milk or 2% Greek yogurt + berries + a little honey.</b> More protein, less added sugar, no processed bar.</li>
-    <li><b>Weigh carbs:</b> 70g dry GF pasta, ~150g cooked rice, ~200g sweet potato per meal.</li>
-    <li><b>Add vegetables to 2 meals/day</b> and avocado a few times a week — fiber keeps you full.</li>
-    <li><b>Honey:</b> keep it to 1–2 tsp a day.</li>
-    <li><b>Treats:</b> plan one per week (e.g. Saturday pizza) and log it. Planned isn't failing.</li>
-    <li><b>Optional:</b> salmon, sardines and trout are among the lowest-mercury fish. Twice a week would replace an omega-3 supplement. Beef liver once a week is very nutrient-dense if you like it.</li></ul>
-    <h4>Sample day (~1,800 kcal · ~126g protein)</h4><ul style="margin:0">
-    <li>Breakfast: cappuccino + 3 eggs with 30g mozzarella in 1 tsp butter</li>
-    <li>Lunch: 70g GF pasta + 150g 90/10 beef + peppers, 1 tsp butter</li>
-    <li>Snack: 200g plain Greek yogurt + berries + 1 tsp honey</li>
-    <li>Dinner: purple sweet potato mash + 150g 90/10 beef + 20g mozzarella</li></ul></div>
-  <div class="label">Supplements</div>
-  <div class="card pad prose"><h4 style="margin-top:0">Take</h4><ul>
-    <li><b>Creatine monohydrate — 3–5g daily.</b> The most researched supplement for strength and muscle, and it helps you keep muscle while losing fat. Pick plain, unflavored (single ingredient). You may gain 1–2 lb of water <i>inside the muscle</i> the first weeks — that's not fat.</li>
-    <li><b>Magnesium glycinate — 200–300mg before bed.</b> Sleep, recovery and cramps. Your diet is low in nuts, seeds and leafy greens, its main food sources.</li>
-    <li><b>Omega-3 (fish oil) — 1–2g EPA+DHA</b>, only if you're not eating fatty fish. Choose a third-party-tested brand (IFOS); purified oils are tested for mercury.</li>
-    <li><b>Electrolytes on 15k / sweaty days</b> — a pinch of sea salt and lemon in water works.</li></ul>
-    <h4>Skip for now</h4><ul style="margin:0">
-    <li><b>Vitamin D & iron</b> — your bloodwork is normal. Re-test vitamin D in winter and iron yearly.</li>
-    <li><b>Fat burners, detox teas, BCAAs</b> — no real benefit when protein is high enough.</li>
-    <li><b>Multivitamin</b> — not needed with this way of eating.</li></ul></div>
-  <p class="muted" style="margin:12px 4px">General guidance, not medical advice — check new supplements with your doctor, and re-do bloodwork every 6–12 months.</p>
-  <button class="btn sec" data-act="reset">Reset all data</button>`;
+  const avg = weekAvg(today()) ?? S.weights.at(-1)?.lb ?? 135;
+  const startW = S.weights.length ? [...S.weights].sort((a, b) => a.d < b.d ? -1 : 1)[0].lb : 135;
+  const prog = Math.max(0, Math.min(1, (startW - avg) / Math.max(1, startW - TARGET.goal)));
+  const toGo = Math.max(0, avg - TARGET.goal), wkLo = Math.ceil(toGo / 0.75), wkHi = Math.ceil(toGo / 0.5);
+  const tile = (icon, v, l) => `<div class="tile"><span class="ico">${I(ICON[icon], 20)}</span><b class="num">${v}</b><small>${l}</small></div>`;
+  return `<div class="h1">Plan</div><p class="lead">Lean, defined and glute focused.</p>
+    <div class="row" style="margin-top:14px">
+      <span class="chip">${I(ICON.user, 16, 2)}24 years</span><span class="chip">${I(ICON.height, 16, 2)}5'5"</span><span class="chip">${I(ICON.dumbbell, 16, 2)}5+ years lifting</span><span class="chip">${I(ICON.home, 16, 2)}Gym or home</span>
+    </div>
+    ${label('Goal weight', 'scale')}
+    <div class="card ink pad" style="display:flex;flex-direction:column;gap:14px">
+      <div class="row" style="justify-content:space-between;align-items:flex-end"><div><div style="font-size:12px;opacity:.7;font-weight:600">Now</div><div class="rounded num" style="font-size:30px;font-weight:800">${avg.toFixed(1)}</div></div>
+        <div style="text-align:right"><div style="font-size:12px;opacity:.7;font-weight:600">Goal</div><div class="rounded num" style="font-size:30px;font-weight:800">${TARGET.goal}</div></div></div>
+      <div class="bar" style="background:rgba(255,255,255,.18)"><i style="width:${prog * 100}%;background:var(--glow)"></i></div>
+      <div style="font-size:13px;opacity:.8">${toGo > 0 ? `${toGo.toFixed(1)} lb to go. About ${wkLo} to ${wkHi} weeks at 0.5 to 0.75 lb a week.` : 'Goal reached. Judge by photos and measurements now.'}</div>
+    </div>
+    <div class="bubble" style="margin-top:12px"><span class="ico">${I(ICON.info, 20)}</span><div class="tx"><div class="tt">Why 125 and not 115</div><div class="st">At 5'5" with your training, 125 looks lean and defined. Going to 115 would cost glute muscle, and muscle is what creates your shape.</div></div></div>
+    ${label('Daily targets', 'bolt')}
+    <div class="g2">
+      ${tile('flame', '1,800', 'Calories')}${tile('egg', '125 g', 'Protein')}
+      ${tile('bowl', '170 g', 'Carbs')}${tile('leaf', '60 g', 'Fat')}
+      ${tile('steps', '12,000', 'Steps')}${tile('drop', '2.5 L', 'Water')}
+      ${tile('moon', '7.5 h', 'Sleep')}${tile('dumbbell', '5', 'Sessions a week')}
+    </div>
+    ${label('If progress stalls', 'refresh')}
+    <div class="bubble"><span class="ico">${I(ICON.chart, 20)}</span><div class="tx"><div class="tt">Two flat weeks</div><div class="st">If your 7 day average has not dropped in 2 weeks (outside your period week), cut 100 to 150 kcal or add 2,000 steps. Change one thing, not both.</div></div></div>
+    ${label('Supplements', 'pill')}
+    <div class="stack">${SUPPS.map(s => `<div class="bubble"><span class="ico ink">${I(ICON.pill, 20)}</span><div class="tx"><div class="tt">${s.n}</div><div class="row" style="margin:6px 0"><span class="tag">${s.dose}</span><span class="tag g">${s.when}</span></div><div class="st">${s.why}</div></div></div>`).join('')}</div>
+    ${label('Skip for now')}
+    <div class="g2">
+      <div class="tile"><b style="font-size:15px">Vitamin D</b><small>Your bloodwork is normal. Retest in winter.</small></div>
+      <div class="tile"><b style="font-size:15px">Iron</b><small>Normal levels. Retest yearly.</small></div>
+      <div class="tile"><b style="font-size:15px">Fat burners</b><small>No real benefit.</small></div>
+      <div class="tile"><b style="font-size:15px">Multivitamin</b><small>Not needed with your food.</small></div>
+    </div>
+    <p class="muted" style="margin:14px 4px">General guidance, not medical advice. Check new supplements with your doctor and repeat bloodwork every 6 to 12 months.</p>
+    <button class="btn sec" data-act="reset">Reset all data</button>`;
 }
 
 /* ---------- render ---------- */
 const TABS = [['today', 'Today', 'today'], ['train', 'Train', 'dumbbell'], ['eat', 'Eat', 'fork'], ['progress', 'Progress', 'chart'], ['plan', 'Plan', 'book']];
+const OVERLAYS = { session: o => renderSession(o.id), routine: o => renderRoutine(o.id), photo: o => renderPhotoView(o.id), compare: o => renderCompare(o.ids),
+  search: renderSearch, food: renderFood, meal: renderMeal, custom: renderCustom, logged: renderLogged, health: renderHealthSetup };
 function render() {
-  const app = document.getElementById('app');
   const view = { today: renderToday, train: renderTrain, eat: renderEat, progress: renderProgress, plan: renderPlan }[ui.tab];
-  app.innerHTML = `<div class="wrap">${view()}</div>`;
+  document.getElementById('app').innerHTML = `<div class="wrap">${view()}</div>`;
   document.getElementById('tabs').innerHTML = TABS.map(([id, l, ic]) => `<button class="${ui.tab === id ? 'on' : ''}" data-act="tab" data-id="${id}">${I(ICON[ic], 24, ui.tab === id ? 2.2 : 1.8)}${l}</button>`).join('');
   const ov = document.getElementById('ov');
   if (ui.overlay) {
-    const y = ov.firstElementChild?.scrollTop || 0;
-    const o = ui.overlay;
-    const html = o.type === 'session' ? renderSession(o.id) : o.type === 'routine' ? renderRoutine(o.id) : o.type === 'photo' ? renderPhotoView(o.id) : renderCompare(o.ids);
+    const html = OVERLAYS[ui.overlay.type](ui.overlay);
     if (!html) { ui.overlay = null; ov.innerHTML = ''; return render(); }
+    const y = ov.firstElementChild?.scrollTop || 0;
     ov.innerHTML = `<div class="overlay">${html}</div>`;
-    ov.firstElementChild.scrollTop = y;
+    ov.firstElementChild.scrollTop = ui.overlay._fresh ? 0 : y;
+    ui.overlay._fresh = false;
   } else ov.innerHTML = '';
   if (ui.tab === 'progress') drawChart();
 }
+const openOverlay = o => { ui.overlay = { ...o, _fresh: true }; };
 
 /* ---------- events ---------- */
+const VIEW_ONLY = ['tab', 'sel', 'exp', 'open-session', 'open-routine', 'close', 'seg', 'slot', 'pose', 'cmp', 'photo', 'open-search', 'open-food', 'open-meal', 'open-custom', 'open-logged', 'open-health', 'search-online', 'ch-pick', 'ch-cancel', 'health-run'];
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act, d = day(ui.sel);
-  if (a !== 'exp') e.stopPropagation();
   switch (a) {
-    case 'tab': ui.tab = b.dataset.id; ui.overlay = null; window.scrollTo(0, 0); break;
+    case 'tab': ui.tab = b.dataset.id; ui.overlay = null; ui.chPick = null; window.scrollTo(0, 0); break;
     case 'sel': ui.sel = b.dataset.k; ui.exp = null; break;
     case 'exp': if (e.target.closest('.check')) return; ui.exp = ui.exp === b.dataset.k ? null : b.dataset.k; break;
     case 'toggle': {
       const k = b.dataset.k;
-      if (k === 'workout') { ui.overlay = { type: 'session', id: plannedSession(ui.sel) }; break; }
-      if (k === 'core' || k === 'stretch') { d.h[k] = !d.h[k]; break; }
-      d.h[k] = !habitDone(ui.sel, k);
+      if (k === 'workout') { openOverlay({ type: 'session', id: plannedSession(ui.sel) }); break; }
+      d.h[k] = !habitDone(ui.sel, k); if (k === 'core' || k === 'stretch') d.h[k] = !!d.h[k];
       break;
     }
-    case 'pick': d.session = b.dataset.id; if (d.workout) d.workout = null; break;
-    case 'open-session': ui.overlay = { type: 'session', id: b.dataset.id }; break;
-    case 'open-routine': ui.overlay = { type: 'routine', id: b.dataset.id }; break;
-    case 'close': ui.overlay = null; break;
+    case 'pick': d.session = b.dataset.id; d.workout = null; break;
+    case 'open-session': openOverlay({ type: 'session', id: b.dataset.id }); break;
+    case 'open-routine': openOverlay({ type: 'routine', id: b.dataset.id }); break;
+    case 'open-health': openOverlay({ type: 'health' }); break;
+    case 'close':
+      if (ui.overlay?.type === 'food' && ui.backTo) { ui.overlay = ui.backTo; ui.overlay._fresh = true; ui.backTo = null; }
+      else ui.overlay = null;
+      break;
     case 'steps+': d.steps = (d.steps || 0) + +b.dataset.n; break;
+    case 'health-run': ui.awaitHealth = true; return;
+    case 'paste-steps': pasteSteps(); return;
     case 'water': d.water = Math.max(0, (d.water || 0) + +b.dataset.n); break;
     case 'set-done': {
       const arr = d.sets[b.dataset.e] || (d.sets[b.dataset.e] = []);
@@ -763,30 +1205,73 @@ document.addEventListener('click', e => {
     }
     case 'finish': {
       const id = b.dataset.id;
-      if (d.workout === id) { d.workout = null; }
-      else { d.workout = id; d.session = id; if (id !== 'R' && ui.sel === today()) S.last = id; toast('Session saved 💪'); ui.overlay = null; }
+      if (d.workout === id) d.workout = null;
+      else { d.workout = id; d.session = id; if (id !== 'R' && ui.sel === today()) S.last = id; toast('Session saved'); ui.overlay = null; }
       break;
     }
-    case 'routine-done': d.h[b.dataset.id] = !d.h[b.dataset.id]; if (d.h[b.dataset.id]) { ui.overlay = null; toast('Nice — done'); } break;
-    case 'complete': d.done = !d.done; if (d.done) toast(pct(ui.sel) === 1 ? 'Perfect day ✨' : 'Day logged'); break;
+    case 'routine-done': d.h[b.dataset.id] = !d.h[b.dataset.id]; if (d.h[b.dataset.id]) { ui.overlay = null; toast('Done'); } break;
+    case 'complete': d.done = !d.done; if (d.done) toast(pct(ui.sel) === 1 ? 'Perfect day' : 'Day complete'); break;
     case 'seg': ui.trainSeg = b.dataset.id; break;
-    case 'group': ui.eatGroup = b.dataset.id; break;
-    case 'add-food': { const f = FOODS[+b.dataset.i]; d.food.push({ n: f.n, k: f.k, p: f.p, c: f.c, f: f.f }); toast('Added'); break; }
-    case 'rm-food': d.food.splice(+b.dataset.i, 1); break;
-    case 'add-custom': {
-      const n = document.getElementById('cf-n').value.trim(), k = +document.getElementById('cf-k').value || 0, p = +document.getElementById('cf-p').value || 0;
-      if (!n) return toast('Name the food'); d.food.push({ n, k, p, c: 0, f: 0 }); toast('Added'); break;
+    case 'slot': ui.mealSlot = b.dataset.id; break;
+    /* food */
+    case 'open-search': openOverlay({ type: 'search', q: '' }); loadUSDA()?.then(() => ui.overlay?.type === 'search' && updateResults()); break;
+    case 'search-online': {
+      const o = ui.overlay, q = (o.q || '').trim(); if (!q) return;
+      o.online = 'loading'; updateResults();
+      searchOnline(q).then(list => { if (ui.overlay === o) { o.online = list; updateResults(); } })
+        .catch(err => { if (ui.overlay === o) { o.online = { error: err.message === 'limit' ? 'Online search has hit its hourly limit. Try again later, or add the food from its label.' : 'Online search is not available right now. Check your connection.' }; updateResults(); } });
+      return;
     }
+    case 'open-food': {
+      const id = b.dataset.id;
+      const f = id.startsWith('o:') ? ui.overlay.online.find(x => x.id === id) : foodById(id);
+      if (!f) return;
+      ui.backTo = ui.overlay; openOverlay({ type: 'food', food: f, amt: '1', unit: 0 }); break;
+    }
+    case 'log-food': {
+      const o = ui.overlay, f = o.food, u = f.units[o.unit], g = (parseFloat(o.amt) || 0) * u[1];
+      if (!(g > 0)) return toast('Enter an amount');
+      logEntry(f.n, scale(f, g), null, g);
+      if (!f.id.startsWith('o:')) pushRecent(f.id); else pushRecent(saveMyFood(f).id);
+      ui.overlay = null; toast(`Added ${r0(scale(f, g).k)} kcal`); break;
+    }
+    case 'save-food': saveMyFood(ui.overlay.food); toast('Saved to my foods'); break;
+    case 'del-myfood': S.myFoods = S.myFoods.filter(x => x.id !== b.dataset.id); S.recent = S.recent.filter(x => x !== b.dataset.id); ui.overlay = null; toast('Deleted'); break;
+    case 'open-meal': { const m = MEALS.find(x => x.id === b.dataset.id); openOverlay({ type: 'meal', id: m.id, items: m.items.map(x => [...x]) }); break; }
+    case 'log-meal': {
+      const o = ui.overlay, m = MEALS.find(x => x.id === o.id);
+      const items = o.items.filter(([, g]) => g > 0);
+      logEntry(m.n, mealTotals(items), items.map(([id, g]) => ({ n: foodById(id).n, g })));
+      ui.overlay = null; toast(`Added ${r0(mealTotals(items).k)} kcal`); break;
+    }
+    case 'open-logged': openOverlay({ type: 'logged', i: +b.dataset.i }); break;
+    case 'rm-food': d.food.splice(+b.dataset.i, 1); if (ui.overlay?.type === 'logged') ui.overlay = null; break;
+    case 'open-custom': openOverlay({ type: 'custom' }); break;
+    case 'custom-save': {
+      const v = id => document.getElementById(id).value.trim(), num = id => v(id) === '' ? null : parseFloat(v(id));
+      const n = v('cf-n'), k = num('cf-k');
+      if (!n) return toast('Give the food a name');
+      if (k == null || isNaN(k)) return toast('Enter the calories');
+      const sg = num('cf-sg'), per = sg > 0 ? 100 / sg : 1;
+      const vals = ['cf-k', 'cf-p', 'cf-c', 'cf-f', 'cf-fib', 'cf-sug', 'cf-sat', 'cf-na'].map((id, i) => { const x = num(id); return x == null || isNaN(x) ? (i < 4 ? 0 : null) : x * per; });
+      const units = sg > 0 ? [[v('cf-sl') ? `${v('cf-sl')} (${r1(sg)} g)` : `1 serving (${r1(sg)} g)`, sg]] : [[v('cf-sl') || '1 serving', 100]];
+      const f = mkFood('m:' + Date.now().toString(36), n, 'My foods', 'Your label', vals, units);
+      S.myFoods.push(f); pushRecent(f.id);
+      if (b.dataset.log) { logEntry(f.n, scale(f, units[0][1]), null, sg > 0 ? sg : null); toast('Saved and added'); }
+      else toast('Saved to my foods');
+      ui.overlay = null; break;
+    }
+    /* weight, measures, photos */
     case 'add-weight': {
       const v = parseFloat(document.getElementById('wt').value);
       if (!(v > 60 && v < 400)) return toast('Enter your weight in lb');
-      S.weights = S.weights.filter(x => x.d !== today()); S.weights.push({ d: today(), lb: v }); toast('Weigh-in saved'); break;
+      S.weights = S.weights.filter(x => x.d !== today()); S.weights.push({ d: today(), lb: v }); toast('Weigh in saved'); break;
     }
     case 'rm-weight': S.weights = S.weights.filter(x => x.d !== b.dataset.k); break;
     case 'add-measure': {
       const g = id => parseFloat(document.getElementById(id).value) || null;
       const m = { d: today(), w: g('m-w'), h: g('m-h'), t: g('m-t') };
-      if (!m.w && !m.h && !m.t) return toast('Enter at least one');
+      if (!m.w && !m.h && !m.t) return toast('Enter at least one measurement');
       S.measures = S.measures.filter(x => x.d !== today()); S.measures.push(m); toast('Saved'); break;
     }
     case 'rm-measure': S.measures = S.measures.filter(x => x.d !== b.dataset.k); break;
@@ -794,9 +1279,9 @@ document.addEventListener('click', e => {
     case 'cmp': ui.cmp = ui.cmp ? null : []; break;
     case 'photo': {
       const id = b.dataset.id;
-      if (!ui.cmp) { ui.overlay = { type: 'photo', id }; break; }
+      if (!ui.cmp) { openOverlay({ type: 'photo', id }); break; }
       ui.cmp = ui.cmp.includes(id) ? ui.cmp.filter(x => x !== id) : [...ui.cmp, id];
-      if (ui.cmp.length === 2) { ui.overlay = { type: 'compare', ids: ui.cmp }; ui.cmp = null; }
+      if (ui.cmp.length === 2) { openOverlay({ type: 'compare', ids: ui.cmp }); ui.cmp = null; }
       break;
     }
     case 'del-photo': {
@@ -805,38 +1290,85 @@ document.addEventListener('click', e => {
       PH.del(id).then(() => {
         URL.revokeObjectURL(URLS[id]); delete URLS[id];
         PHOTOS = PHOTOS.filter(x => x.id !== id); ui.overlay = null; toast('Photo deleted'); render();
-      }).catch(() => toast('Couldn\'t delete that photo'));
+      }).catch(() => toast('That photo could not be deleted'));
       return;
+    }
+    /* challenge */
+    case 'ch-pick': ui.chPick = b.dataset.len; break;
+    case 'ch-cancel': ui.chPick = null; break;
+    case 'ch-go': {
+      const s = chStats();
+      S.chLog.push({ len: s.len, start: S.ch.start, end: today(), done: s.done, status: s.finished ? 'finished' : 'restarted' });
+      S.ch = { len: +b.dataset.len, start: today() };
+      ui.chPick = null; toast(`Day 1 of ${ladderOf(S.ch.len).name}`); break;
     }
     case 'reset':
       if (b.dataset.armed) {
-        S = { start: today(), days: {}, weights: [], measures: [], last: null };
+        S = { days: {}, weights: [], measures: [], last: null, ch: { len: 20, start: today() }, chLog: [], myFoods: [], recent: [] };
         PH.clear().catch(() => {}); Object.values(URLS).forEach(u => URL.revokeObjectURL(u)); PHOTOS = []; URLS = {};
-        toast('Reset');
-      }
-      else { b.dataset.armed = 1; b.textContent = 'Tap again to erase everything'; return; }
+        toast('All data reset');
+      } else { b.dataset.armed = 1; b.textContent = 'Tap again to erase everything'; return; }
       break;
   }
-  save(); render();
+  if (!VIEW_ONLY.includes(a)) save();
+  render();
 });
 
+function saveMyFood(f) {
+  const existing = S.myFoods.find(x => x.origin === f.id || x.id === f.id);
+  if (existing) return existing;
+  const copy = { ...f, id: 'm:' + Date.now().toString(36), origin: f.id, units: f.units.filter(u => u[0] !== 'grams') };
+  S.myFoods.push(copy); save(); return copy;
+}
+async function pasteSteps() {
+  try {
+    const txt = await navigator.clipboard.readText();
+    const n = Math.round(parseFloat(String(txt).replace(/[^\d.]/g, '')));
+    if (!(n >= 0 && n < 200000)) return toast('No step count found. Run Get from Health first.');
+    day(ui.sel).stepsH = n; save(); render(); toast(`${fmt(n)} steps from Apple Health`);
+  } catch { toast('Paste was blocked. Tap Paste steps again and choose Paste.'); }
+}
+function updateResults() { const el = document.getElementById('results'); if (el) el.innerHTML = searchResultsHTML(); }
+
+let searchT;
+document.addEventListener('input', e => {
+  const t = e.target, live = t.dataset.live; if (!live || !ui.overlay) return;
+  const o = ui.overlay;
+  if (live === 'search') { o.q = t.value; o.online = null; clearTimeout(searchT); searchT = setTimeout(updateResults, 120); }
+  if (live === 'amt') {
+    o.amt = t.value;
+    const f = o.food, u = f.units[o.unit], g = (parseFloat(o.amt) || 0) * u[1];
+    document.getElementById('facts').outerHTML = factsHTML(addN([scale(f, g)]), u[0] === 'grams' ? `${r1(g)} g` : `${o.amt} × ${u[0]} (${r1(g)} g)`, f.src);
+  }
+  if (live === 'mealg') {
+    const i = +t.dataset.i; o.items[i][1] = parseFloat(t.value) || 0;
+    const f = foodById(o.items[i][0]), fn = scale(f, o.items[i][1]);
+    document.getElementById('mi-' + i).textContent = `${r0(fn.k)} kcal, ${r1(fn.p)} g protein`;
+    document.getElementById('facts').outerHTML = factsHTML(mealTotals(o.items), 'Whole meal', 'USDA and package labels');
+  }
+});
 document.addEventListener('change', e => {
   const t = e.target;
   if (t.id === 'ph-in') { addPhotos([...t.files]); t.value = ''; return; }
   const which = t.dataset.in; if (!which) return;
   const d = day(ui.sel);
+  if (which === 'unit') { ui.overlay.unit = +t.value; ui.overlay.amt = ui.overlay.food.units[+t.value][0] === 'grams' ? '100' : '1'; render(); return; }
   if (which === 'steps') { d.steps = Math.max(0, parseInt(t.value) || 0); save(); render(); return; }
   if (which === 'w' || which === 'r') {
     const arr = d.sets[t.dataset.e] || (d.sets[t.dataset.e] = []);
     const s = arr[+t.dataset.i] || (arr[+t.dataset.i] = {});
     s[which] = t.value.trim() === '' ? null : parseFloat(t.value);
-    if (s.w != null || s.r != null) s.d = s.d ?? false;
     save();
   }
 });
 
 let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => ui.tab === 'progress' && drawChart(), 150); });
-document.addEventListener('visibilitychange', () => { if (!document.hidden && ui.sel < today() && !ui.overlay) { ui.sel = today(); render(); } });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) return;
+  if (ui.awaitHealth) { ui.awaitHealth = false; ui.exp = 'steps'; render(); toast('Tap Paste steps to bring in your Health steps'); return; }
+  if (ui.sel < today() && !ui.overlay) { ui.sel = today(); render(); }
+});
+save();
 render();
 PH.all().then(arr => {
   PHOTOS = arr; arr.forEach(p => URLS[p.id] = URL.createObjectURL(p.blob));
